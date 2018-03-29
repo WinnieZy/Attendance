@@ -11,23 +11,23 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.zy.attendance.uilib.UIConfig;
 import com.zy.attendance.view.HomeListView;
 import com.zy.attendance.view.IMainView;
+import com.zy.attendance.view.ManagementView;
 import com.zy.attendance.view.PersonalCenterView;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView mTextMessage;
     private ViewPager mViewPager;
     private BottomNavigationView mBottomNavigationView;
     final ArrayList<IMainView> viewHandler = new ArrayList<IMainView>();
-    private final ArrayList<View> viewContainter = new ArrayList<View>();
+    private final ArrayList<View> viewContainer = new ArrayList<View>();
     private Context mContext;
+    private ManagementView mManagementView;
     private HomeListView mHomeListView;
     private PersonalCenterView mPersonalCenterView;
 
@@ -39,15 +39,12 @@ public class MainActivity extends AppCompatActivity {
             switch (item.getItemId()) {
                 case R.id.navigation_manager:
                     mViewPager.setCurrentItem(0);
-                    mTextMessage.setText(R.string.title_manager);
                     return true;
                 case R.id.navigation_home:
                     mViewPager.setCurrentItem(1);
-                    mTextMessage.setText(R.string.title_home);
                     return true;
                 case R.id.navigation_me:
                     mViewPager.setCurrentItem(2);
-                    mTextMessage.setText(R.string.title_me);
                     return true;
             }
             return false;
@@ -58,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private PagerAdapter mPagerAdapter = new PagerAdapter() {
         @Override
         public int getCount() {
-            return viewContainter.size();
+            return viewContainer.size();
         }
 
         @Override
@@ -69,17 +66,17 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             Log.d("winnie","instantiateItem position:"+position);
-            ((ViewPager) container).addView(viewContainter.get(position));
+            ((ViewPager) container).addView(viewContainer.get(position));
             Object obj = null;
-            synchronized (viewContainter) {
-                obj = viewContainter.get(position);
+            synchronized (viewContainer) {
+                obj = viewContainer.get(position);
             }
             return obj;
         }
 
         @Override
         public void destroyItem(ViewGroup container, int position, Object object) {
-            ((ViewPager) container).removeView(viewContainter.get(position));
+            ((ViewPager) container).removeView(viewContainer.get(position));
         }
     };
 
@@ -120,10 +117,10 @@ public class MainActivity extends AppCompatActivity {
         mContext = this;
         UIConfig.initUILib(mContext);
         mViewPager = (ViewPager) findViewById(R.id.viewPager);
-        mTextMessage = (TextView) findViewById(R.id.message);
         mBottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation);
         mBottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
+        mManagementView = new ManagementView(mContext);
 
         try {
             mHomeListView = new HomeListView(mContext);
@@ -135,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
 
         synchronized (viewHandler) {
             viewHandler.clear();
-            viewHandler.add(mPersonalCenterView);
+            viewHandler.add(mManagementView);
             viewHandler.add(mHomeListView);
             viewHandler.add(mPersonalCenterView);
         }
@@ -146,11 +143,11 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        synchronized (viewContainter) {
-            viewContainter.clear();
-            viewContainter.add(mPersonalCenterView.getContentView());
-            viewContainter.add(mHomeListView.getContentView());
-            viewContainter.add(mPersonalCenterView.getContentView());
+        synchronized (viewContainer) {
+            viewContainer.clear();
+            viewContainer.add(mManagementView.getContentView());
+            viewContainer.add(mHomeListView.getContentView());
+            viewContainer.add(mPersonalCenterView.getContentView());
         }
 
         mViewPager.setAdapter(mPagerAdapter);
@@ -177,6 +174,9 @@ public class MainActivity extends AppCompatActivity {
             for (IMainView obj : viewHandler) {
                 obj.onDestroy();
             }
+        }
+        synchronized (viewContainer) {
+            viewContainer.clear();
         }
     }
 }

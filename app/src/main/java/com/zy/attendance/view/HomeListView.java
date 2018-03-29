@@ -72,7 +72,7 @@ public class HomeListView extends LinearLayout implements IMainView,IMainCallbac
         Log.i("winnie","loadingData");
         ArrayList<MacRecord> arrayList = new ArrayList<>(5);
         for (int i = 0; i < 50; i++) {
-            MacRecord macRecord = new MacRecord("03-21","10:45:12","22:32:15");
+            MacRecord macRecord = new MacRecord("03-21(二)","10:45:12","22:32:15");
             arrayList.add(macRecord);
         }
         new Thread().sleep(3000);

@@ -50,7 +50,7 @@ public class HomeListViewAdapter extends BaseAdapter {
         MacRecord data = list_mac.get(list_mac.size()-1-position);
         if (convertView==null) {
             LayoutInflater inflater = LayoutInflater.from(mContext);
-            convertView = inflater.inflate(R.layout.home_list_view_item, null);
+            convertView = inflater.inflate(R.layout.item_home_list_view, null);
             ViewHolder viewHolder = new ViewHolder();
             viewHolder.tv_title_date = (TextView) convertView.findViewById(R.id.tv_title_date);
             viewHolder.tv_title_signIn = (TextView) convertView.findViewById(R.id.tv_title_signIn);
