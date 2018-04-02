@@ -2,6 +2,9 @@ package com.zy.attendance.utils;
 
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.zy.attendance.bean.Staff;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,5 +37,53 @@ public class JsonUtil {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static String handleLoginResponse(String response){
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            String code = jsonObject.getString("code");
+            String message = jsonObject.getString("message");
+            if (code.equals("200")&&message.equals("success")){
+                return "登录成功";
+            }else {
+                return message;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return "未知错误";
+    }
+
+    public static Staff handleLoginData(String response){
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            JSONArray data = jsonObject.getJSONArray("data");
+            if (data != null){
+                JSONObject jsonArrayObject = data.getJSONObject(0);
+                Gson gson = new Gson();
+                return gson.fromJson(jsonArrayObject.toString(),Staff.class);
+            }else {
+                return null;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    //用于生成Json字符串post到服务器端
+    public static String createUserJSONString(String[] key, String[] value){
+        try {
+            JSONObject jsonObject = new JSONObject();
+            for (int i = 0; i < key.length; i++) {
+                jsonObject.put(key[i],value[i]);
+            }
+            String json = String.valueOf(jsonObject);
+            return json;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

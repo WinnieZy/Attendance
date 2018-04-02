@@ -1,6 +1,6 @@
 package com.zy.attendance.utils;
 
-public interface HttpCallBackListener {
+public interface IHttpCallBack {
 
 	void onFinish(String response);
 	

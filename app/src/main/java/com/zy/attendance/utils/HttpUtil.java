@@ -3,9 +3,9 @@ package com.zy.attendance.utils;
 import android.util.Log;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -18,7 +18,7 @@ import java.net.URL;
  */
 public class HttpUtil {
 
-    public static void sendGetHttpRequest(final String address,final HttpCallBackListener listener){
+    public static void sendGetHttpRequest(final String address,final IHttpCallBack listener){
 
         new Thread(new Runnable() {
 
@@ -55,7 +55,7 @@ public class HttpUtil {
         }).start();
     }
 
-    public static void sendPostHttpRequest(final String address,final String jsonString,final HttpCallBackListener listener){
+    public static void sendPostHttpRequest(final String address,final String jsonString,final IHttpCallBack listener){
 
         new Thread(new Runnable() {
 
@@ -68,13 +68,18 @@ public class HttpUtil {
                     connection.setRequestMethod("POST");
                     connection.setConnectTimeout(5000);
                     connection.setReadTimeout(5000);
+                    connection.setRequestProperty("Content-Type","application/json");
                     connection.setDoOutput(true);
                     connection.setUseCaches(false);
                     connection.connect();
-                    DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
-                    outputStream.writeBytes(jsonString);
-                    outputStream.flush();
-                    outputStream.close();
+                    OutputStream os = connection.getOutputStream();
+                    os.write(jsonString.getBytes());
+                    os.flush();
+                    os.close();
+//                    DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
+//                    outputStream.writeBytes(jsonString);
+//                    outputStream.flush();
+//                    outputStream.close();
                     InputStream inputStream = connection.getInputStream();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
                     StringBuilder response = new StringBuilder();

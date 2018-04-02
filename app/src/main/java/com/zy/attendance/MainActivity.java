@@ -1,6 +1,7 @@
 package com.zy.attendance;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -12,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.zy.attendance.storage.dao.UserDao;
 import com.zy.attendance.uilib.UIConfig;
 import com.zy.attendance.view.HomeListView;
 import com.zy.attendance.view.IMainView;
@@ -21,6 +23,8 @@ import com.zy.attendance.view.PersonalCenterView;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = "MainActivity";
 
     private ViewPager mViewPager;
     private BottomNavigationView mBottomNavigationView;
@@ -65,7 +69,6 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
-            Log.d("winnie","instantiateItem position:"+position);
             ((ViewPager) container).addView(viewContainer.get(position));
             Object obj = null;
             synchronized (viewContainer) {
@@ -83,15 +86,15 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager.OnPageChangeListener mOnPageChangeListener = new ViewPager.OnPageChangeListener() {
         @Override
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-            Log.i("winnie", " onPageScrolled position = " + position);
-            Log.i("winnie", " onPageScrolled positionOffset = " + positionOffset);
-            Log.i("winnie", " onPageScrolled positionOffsetPixels = " + positionOffsetPixels);
+//            Log.i("winnie", " onPageScrolled position = " + position);
+//            Log.i("winnie", " onPageScrolled positionOffset = " + positionOffset);
+//            Log.i("winnie", " onPageScrolled positionOffsetPixels = " + positionOffsetPixels);
         }
 
         @Override
         public void onPageSelected(int position) {
-            Log.i("winnie", " onPageSelected position = " + position);
-            Log.i("winnie", " viewpager position = " + mViewPager.getCurrentItem());
+//            Log.i("winnie", " onPageSelected position = " + position);
+//            Log.i("winnie", " viewpager position = " + mViewPager.getCurrentItem());
             synchronized (viewHandler) {
                 for (int i = 0; i < viewHandler.size(); i++) {
                     if(position == i){
@@ -105,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onPageScrollStateChanged(int state) {
-            Log.i("winnie", " onPageScrollStateChanged state = " + state);
+//            Log.i("winnie", " onPageScrollStateChanged state = " + state);
         }
     };
 
@@ -113,8 +116,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         mContext = this;
+        if (!new UserDao(mContext).getIsOnline()){
+            Intent intent = new Intent(MainActivity.this,LoginActivity.class);
+            startActivity(intent);
+            finish();
+        }
         UIConfig.initUILib(mContext);
         mViewPager = (ViewPager) findViewById(R.id.viewPager);
         mBottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation);
@@ -167,6 +174,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        synchronized (viewHandler) {
+            for (IMainView obj : viewHandler) {
+                obj.onResume();
+            }
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         //遍历并发出
@@ -191,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
 public void run() {
 //发送用户名密码至网络端，正确则返回所有用户信息存入数据库
 String address = NetAddress.MAC_REQUEST + "?mac=0C:8F:FF:82:19:67&&date=2018-03-21";
-HttpUtil.sendGetHttpRequest(address, new HttpCallBackListener() {
+HttpUtil.sendGetHttpRequest(address, new IHttpCallBack() {
 
 @Override
 public void onFinish(String response) {

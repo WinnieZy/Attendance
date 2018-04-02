@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.zy.attendance.R;
 import com.zy.attendance.bean.MacRecord;
 import com.zy.attendance.uilib.QLoadingView;
+import com.zy.attendance.utils.IDataCallback;
 
 import java.util.ArrayList;
 
@@ -21,7 +22,7 @@ import java.util.ArrayList;
  * Created by lenovo on 2018/3/26.
  */
 
-public class HomeListView extends LinearLayout implements IMainView,IMainCallback{
+public class HomeListView extends LinearLayout implements IMainView,IDataCallback {
 
     private View mLoadingParent;
     private QLoadingView mLoadingView;
@@ -52,7 +53,7 @@ public class HomeListView extends LinearLayout implements IMainView,IMainCallbac
         mLoadingParent.setVisibility(View.VISIBLE);
         mLoadingView.setLoadingViewByType(1);
         mLoadingView.startRotationAnimation();
-        final IMainCallback callback = this;
+        final IDataCallback callback = this;
         Log.i("winnie","Thread");
         new Thread(new Runnable() {
             @Override
@@ -68,7 +69,7 @@ public class HomeListView extends LinearLayout implements IMainView,IMainCallbac
         }).start();
     }
 
-    public void loadingData(IMainCallback callback) throws InterruptedException {
+    public void loadingData(IDataCallback callback) throws InterruptedException {
         Log.i("winnie","loadingData");
         ArrayList<MacRecord> arrayList = new ArrayList<>(5);
         for (int i = 0; i < 50; i++) {

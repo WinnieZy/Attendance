@@ -2,47 +2,69 @@ package com.zy.attendance.view.Model;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.Nullable;
+import android.util.AttributeSet;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
  * Created by lenovo on 2018/3/27.
  */
 
-public class ItemModelView {
+public class ItemModelView extends LinearLayout{
 
-    private Context mContext;
-    private ImageView mIconView;
-    private TextView mTitleView;
-    private TextView mContentView;
+    private ImageView iconView;
+    private TextView titleView;
+    private TextView contentView;
 
-    public ItemModelView(Context context, Drawable icon, String title, String content) {
-        init(context,icon,title,content);
+    public ItemModelView(Context context) {
+        super(context);
     }
 
-    public ItemModelView(Context context,Drawable icon, String title) {
-        init(context,icon,title,"");
+    public ItemModelView(Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
     }
 
-    private void init(Context context,Drawable icon, String title, String content) {
+    public ImageView getIconView() {
+        return iconView;
+    }
+
+    public void setIconView(ImageView iconView) {
+        this.iconView = iconView;
+    }
+
+    public TextView getTitleView() {
+        return titleView;
+    }
+
+    public void setTitleView(TextView titleView) {
+        this.titleView = titleView;
+    }
+
+    public TextView getContentView() {
+        return contentView;
+    }
+
+    private void init(Context context, Drawable icon, String title, String content) {
         if (icon != null){
-            if (mIconView == null){
-                mIconView = new ImageView(context);
+            if (iconView == null){
+                iconView = new ImageView(context);
             }
-            mIconView.setImageDrawable(icon);
+            iconView.setImageDrawable(icon);
         }
-        if (mTitleView == null){
-            mTitleView = new TextView(context);
+        if (titleView == null){
+            titleView = new TextView(context);
         }
-        mTitleView.setText(title);
-        if (mContentView == null){
-            mContentView = new TextView(context);
+        titleView.setText(title);
+        if (contentView == null){
+            contentView = new TextView(context);
         }
-        mContentView.setText(content);
+        contentView.setText(content);
     }
 
-    public void setmContentView(TextView mContentView) {
-        this.mContentView = mContentView;
+    public void setContentView(TextView contentView) {
+        this.contentView = contentView;
     }
 
 }
