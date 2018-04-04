@@ -44,6 +44,7 @@ import com.zy.attendance.storage.dao.StaffDao;
 import com.zy.attendance.storage.dao.UserDao;
 import com.zy.attendance.uilib.BaseDialog;
 import com.zy.attendance.utils.DateUtil;
+import com.zy.attendance.utils.FormatCheckUtil;
 import com.zy.attendance.utils.HttpUtil;
 import com.zy.attendance.utils.IHttpCallBack;
 import com.zy.attendance.utils.JsonUtil;
@@ -268,7 +269,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             mAccountView.setError(getString(R.string.error_field_required));
             focusView = mAccountView;
             cancel = true;
-        }else if (!isPasswordValid(mPassword)) {
+        }else if (!FormatCheckUtil.isPasswordValid(mPassword)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
@@ -279,7 +280,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             mAccountView.setError(getString(R.string.error_field_required));
             focusView = mAccountView;
             cancel = true;
-        } else if (!isEmailValid(mUsername)) {
+        } else if (!FormatCheckUtil.isUsernameValid(mUsername)) {
             mAccountView.setError(getString(R.string.error_invalid_username));
             focusView = mAccountView;
             cancel = true;
@@ -297,16 +298,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 //            mAuthTask.execute((Void) null);
             mHandler.sendEmptyMessage(MSG_DO_LOGIN);
         }
-    }
-
-    private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        return email.contains("_");
-    }
-
-    private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return password.length() > 5;
     }
 
     /**
@@ -411,8 +402,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                    @Override
                    public void onClick(View view) {
                        String reviewMac = macEdt.getText().toString();
-                       Log.e(TAG,"isMac:"+WiFiUtil.isMacAddress(reviewMac));
-                       if (!"".equals(reviewMac) && WiFiUtil.isMacAddress(reviewMac)){
+                       Log.e(TAG,"isMac:"+FormatCheckUtil.isMacAddressValid(reviewMac));
+                       if (!"".equals(reviewMac) && FormatCheckUtil.isMacAddressValid(reviewMac)){
                             mReviewMac = reviewMac;
                        }
                        macDialog.dismiss();
@@ -531,7 +522,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             @Override
             public void onFinish(String response) {
                 Log.d(TAG, "response:"+response.toString());
-                String result = JsonUtil.handleLoginResponse(response);
+                String result = JsonUtil.handleGeneralResponse(response);
                 String code = result.substring(0,3);
                 String message = result.substring(3);
                 Log.e(TAG,"code:"+code+",message:"+message);
@@ -545,7 +536,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         msg.arg1 = 0;
                     }else {
                         msg.arg1 = 0;
-                        if (!"".equals(message) && WiFiUtil.isMacAddress(message)){
+                        if (!"".equals(message) && FormatCheckUtil.isMacAddressValid(message)){
                             mUserDao.setMac(message);
                             mUserDao.setIsMacChecked(true);
                         }

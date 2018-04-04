@@ -27,11 +27,12 @@
     <string name="error_invalid_password">密码长度至少6位</string>
     <string name="error_same_password">密码不能与初始密码相同</string>
     <string name="error_invalid_reviewpw">两次密码输入不相同</string>
-    <string name="error_invalid_mac">无效mac，请检查</string>
+    <string name="error_invalid_mac">mac格式有误</string>
     <string name="error_invalid_phone">无效手机号</string>
     <string name="error_invalid_email">邮箱格式有误</string>
     <string name="error_incorrect_password">密码错误</string>
     <string name="error_field_required">不能为空</string>
+    <string name="error_modify_same">修改值不能与原值相同</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email completions."</string>
     <string name="head">头像</string>
     <string name="login">登录</string>
@@ -57,4 +58,6 @@
     <string name="mac_review_login">注意：请确保该mac为本设备mac无误，否则将影响考勤记录！校验路径：设置->关于本机->状态消息->WLAN地址</string>
     <string name="mac_register_content">mac为员工考勤记录依据，请检查该mac为本设备mac无误，否则将影响考勤记录！</string>
     <string name="mac_register_path">校验路径：设置->关于本机->状态消息->WLAN地址</string>
+    <string name="mac_review_attention">警告：立即点击校验设备mac</string>
+    <string name="mac_modify_attention">说明：修改绑定mac需向直属Leader发出申请，审批通过后修改生效</string>
 </resources>

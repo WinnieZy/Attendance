@@ -226,7 +226,7 @@ public void run() {
 });
 }
 //                Message message = new Message();
-//                int result = JsonUtil.handleLoginResponse(response);
+//                int result = JsonUtil.handleGeneralResponse(response);
 //                if (result==1) {
 //                    //登录成功
 ////								User user= new User(userName, password,"","","");

@@ -15,6 +15,8 @@ import org.json.JSONObject;
 
 public class JsonUtil {
 
+    private static final String TAG = "JsonUtil";
+
     public static String[] handleMacResponse(String response){
         try {
             JSONObject jsonObject = new JSONObject(response);
@@ -25,7 +27,7 @@ public class JsonUtil {
                 String date = jsonArrayObject.getString("date");
                 String first_time = jsonArrayObject.getString("first_time");
                 String last_time = jsonArrayObject.getString("last_time");
-                Log.e("winnie","mac:"+mac+",date:"+date+",first_time:"+first_time+",last_time:"+last_time);
+                Log.e(TAG,"mac:"+mac+",date:"+date+",first_time:"+first_time+",last_time:"+last_time);
                 String[] result = new String[4];
                 result[0] = mac;
                 result[1] = date;
@@ -34,21 +36,10 @@ public class JsonUtil {
                 return result;
             }
         } catch (JSONException e) {
+            Log.e(TAG,"exception:"+e.getMessage());
             e.printStackTrace();
         }
         return null;
-    }
-
-    public static String handleLoginResponse(String response){
-        try {
-            JSONObject jsonObject = new JSONObject(response);
-            String code = jsonObject.getString("code");
-            String message = jsonObject.getString("message");
-            return code+message;
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return "400未知错误";
     }
 
     public static Staff handleLoginData(String response){
@@ -63,18 +54,20 @@ public class JsonUtil {
                 return null;
             }
         } catch (JSONException e) {
+            Log.e(TAG,"exception:"+e.getMessage());
             e.printStackTrace();
         }
         return null;
     }
 
-    public static String handleRegisterResponse(String response){
+    public static String handleGeneralResponse(String response){
         try {
             JSONObject jsonObject = new JSONObject(response);
             String code = jsonObject.getString("code");
             String message = jsonObject.getString("message");
             return code+message;
         } catch (JSONException e) {
+            Log.e(TAG,"exception:"+e.getMessage());
             e.printStackTrace();
         }
         return "400未知错误";
@@ -85,12 +78,12 @@ public class JsonUtil {
         try {
             JSONObject jsonObject = new JSONObject();
             for (int i = 0; i < key.length; i++) {
-                Log.e("LoginActivity",key[i]+value[i]);
+                Log.e(TAG,key[i]+value[i]);
                 jsonObject.put(key[i],value[i]);
             }
-            String json = String.valueOf(jsonObject);
-            return json;
+            return String.valueOf(jsonObject);
         } catch (Exception e) {
+            Log.e(TAG,"exception:"+e.getMessage());
             e.printStackTrace();
             return null;
         }

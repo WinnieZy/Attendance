@@ -24,6 +24,7 @@ import com.zy.attendance.constants.NetAddress;
 import com.zy.attendance.storage.dao.StaffDao;
 import com.zy.attendance.storage.dao.UserDao;
 import com.zy.attendance.uilib.BaseDialog;
+import com.zy.attendance.utils.FormatCheckUtil;
 import com.zy.attendance.utils.HttpUtil;
 import com.zy.attendance.utils.IHttpCallBack;
 import com.zy.attendance.utils.JsonUtil;
@@ -184,7 +185,7 @@ public class RegisterActivity extends Activity {
         // no field is null
         if (!cancel){
             //check if field is valid
-            if (!isPasswordValid(mPassword)) {
+            if (!FormatCheckUtil.isPasswordValid(mPassword)) {
                 mPasswordEt.setError(getString(R.string.error_invalid_password));
                 focusView = mPasswordEt;
                 cancel = true;
@@ -196,15 +197,15 @@ public class RegisterActivity extends Activity {
                 mReviewPwEt.setError(getString(R.string.error_invalid_reviewpw));
                 focusView = mReviewPwEt;
                 cancel = true;
-            }else if (mReviewMacEt != null && !WiFiUtil.isMacAddress(mReviewMac)) {
+            }else if (mReviewMacEt != null && !FormatCheckUtil.isMacAddressValid(mReviewMac)) {
                 mReviewMacEt.setError(getString(R.string.error_invalid_mac));
                 focusView = mReviewMacEt;
                 cancel = true;
-            }else if (mPhone.length() != 11){
+            }else if (FormatCheckUtil.isPhoneValid(mPhone)){
                 mPhoneEt.setError(getString(R.string.error_invalid_phone));
                 focusView = mPhoneEt;
                 cancel = true;
-            }else if (!isEmailValid(mEmail)) {
+            }else if (!FormatCheckUtil.isEmailValid(mEmail)) {
                 mEmailEt.setError(getString(R.string.error_invalid_email));
                 focusView = mEmailEt;
                 cancel = true;
@@ -238,16 +239,6 @@ public class RegisterActivity extends Activity {
                 macDialog.show();
             }
         }
-    }
-
-    private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        return email.contains("@");
-    }
-
-    private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return password.length() > 5;
     }
 
     private boolean isPasswordSame(String password) {
@@ -313,7 +304,7 @@ public class RegisterActivity extends Activity {
             @Override
             public void onFinish(String response) {
                 Log.e(TAG,"register response:"+response);
-                String result = JsonUtil.handleRegisterResponse(response);
+                String result = JsonUtil.handleGeneralResponse(response);
                 String code = result.substring(0,3);
                 String message = result.substring(3);
                 Log.e(TAG,"code:"+code+",message:"+message);

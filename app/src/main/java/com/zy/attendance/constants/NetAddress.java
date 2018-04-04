@@ -9,4 +9,6 @@ public class NetAddress {
     public static final String MAC_REQUEST = ip_address + "/AttendanceServer/IMac.php";
     public static final String USER_REQUEST = ip_address + "/AttendanceServer/IUserLogin.php";
     public static final String USER_REGISTER = ip_address + "/AttendanceServer/IUserRegister.php";
+    public static final String USER_MODIFY = ip_address + "/AttendanceServer/IUserModify.php";
+    public static final String STAFF_MODIFY = ip_address + "/AttendanceServer/IStaffModify.php";
 }
