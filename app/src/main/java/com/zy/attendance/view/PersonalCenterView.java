@@ -34,7 +34,7 @@ public class PersonalCenterView extends ScrollView implements IMainView {
     private static final String TAG = "PersonalCenterView";
     private Context mContext;
     private LinearLayout mContentLayout;
-    private LinearLayout mUserLayout;
+    private LinearLayout mMacLayout;
     private LinearLayout mPersonLayout;
     private LinearLayout mStaffLayout;
     private LinearLayout mSignOutLayout;
@@ -63,9 +63,9 @@ public class PersonalCenterView extends ScrollView implements IMainView {
         UIConfig.setBackgroundUseUILibRes(this, R.color.personal_view_bg);
         this.addView(mContentLayout);
 
-        mUserLayout = new LinearLayout(mContext);
-        mUserLayout.setBackgroundResource(R.drawable.common_cards_bg);
-        mUserLayout.setOrientation(LinearLayout.VERTICAL);
+        mMacLayout = new LinearLayout(mContext);
+        mMacLayout.setBackgroundResource(R.drawable.common_cards_bg);
+        mMacLayout.setOrientation(LinearLayout.VERTICAL);
         mPersonLayout = new LinearLayout(mContext);
         mPersonLayout.setBackgroundResource(R.drawable.common_cards_bg);
         mPersonLayout.setOrientation(LinearLayout.VERTICAL);
@@ -97,7 +97,7 @@ public class PersonalCenterView extends ScrollView implements IMainView {
             }
         });
         initializeData();
-        mContentLayout.addView(mUserLayout);
+        mContentLayout.addView(mMacLayout);
         mContentLayout.addView(mPersonLayout);
         mContentLayout.addView(mStaffLayout);
         mContentLayout.addView(mSignOutLayout);
@@ -124,7 +124,6 @@ public class PersonalCenterView extends ScrollView implements IMainView {
     }
 
     private void initializeData(){
-        storeModelItem(new ItemModel(R.drawable.icon_name,"昵称"));
         storeModelItem(new ItemModel(R.drawable.icon_mac,"设备mac"));
         storeModelItem(new ItemModel(R.drawable.icon_name,"姓名"));
         storeModelItem(new ItemModel(R.drawable.icon_mobile,"手机号"));
@@ -132,14 +131,13 @@ public class PersonalCenterView extends ScrollView implements IMainView {
         storeModelItem(new ItemModel(R.drawable.icon_no,"工号"));
         storeModelItem(new ItemModel(R.drawable.icon_leader,"直属上级"));
         storeModelItem(new ItemModel(R.drawable.icon_calendar,"入职日期"));
-        mUserLayout.addView(mItemModelViewList.get(0));
-        mUserLayout.addView(mItemModelViewList.get(1));
+        mMacLayout.addView(mItemModelViewList.get(0));
+        mPersonLayout.addView(mItemModelViewList.get(1));
         mPersonLayout.addView(mItemModelViewList.get(2));
         mPersonLayout.addView(mItemModelViewList.get(3));
-        mPersonLayout.addView(mItemModelViewList.get(4));
+        mStaffLayout.addView(mItemModelViewList.get(4));
         mStaffLayout.addView(mItemModelViewList.get(5));
         mStaffLayout.addView(mItemModelViewList.get(6));
-        mStaffLayout.addView(mItemModelViewList.get(7));
     }
 
     private void updateItemData(){
@@ -148,14 +146,13 @@ public class PersonalCenterView extends ScrollView implements IMainView {
             Staff staff = mStaffDao.getStaff();
             Log.e(TAG,user.toString());
             Log.e(TAG,staff.toString());
-            mItemModelList.get(0).setContent(user.getUsername());
-            mItemModelList.get(1).setContent(user.getMac());
-            mItemModelList.get(2).setContent(staff.getStaffName());
-            mItemModelList.get(3).setContent(staff.getTel_num());
-            mItemModelList.get(4).setContent(staff.getEmail());
-            mItemModelList.get(5).setContent(staff.getStaff_id() != 0 ? String.valueOf(staff.getStaff_id()) : "");
-            mItemModelList.get(6).setContent(staff.getLeader());
-            mItemModelList.get(7).setContent(staff.getEntry_date());
+            mItemModelList.get(0).setContent(user.getMac());
+            mItemModelList.get(1).setContent(staff.getStaffName());
+            mItemModelList.get(2).setContent(staff.getTel_num());
+            mItemModelList.get(3).setContent(staff.getEmail());
+            mItemModelList.get(4).setContent(staff.getStaff_id() != 0 ? String.valueOf(staff.getStaff_id()) : "");
+            mItemModelList.get(5).setContent(staff.getLeader());
+            mItemModelList.get(6).setContent(staff.getEntry_date());
         }
         if (mItemModelViewList != null){
             for (int i = 0; i < mItemModelViewList.size(); i++) {

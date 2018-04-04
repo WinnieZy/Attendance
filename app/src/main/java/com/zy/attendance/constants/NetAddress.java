@@ -6,6 +6,7 @@ package com.zy.attendance.constants;
 
 public class NetAddress {
     private static String ip_address = "http://192.168.31.152";
-    public static final String MAC_REQUEST = ip_address + "/AttendanceServer/MacInterface.php";
-    public static final String USER_REQUEST = ip_address + "/AttendanceServer/UserInterface.php";
+    public static final String MAC_REQUEST = ip_address + "/AttendanceServer/IMac.php";
+    public static final String USER_REQUEST = ip_address + "/AttendanceServer/IUserLogin.php";
+    public static final String USER_REGISTER = ip_address + "/AttendanceServer/IUserRegister.php";
 }

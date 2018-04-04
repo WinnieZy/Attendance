@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:background="@drawable/registerbg"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:orientation="horizontal"
+        android:background="@drawable/editbg_w"
+        android:layout_marginTop="60dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp">
+
+        <ImageView
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:src="@drawable/key"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="8dp"
+            android:layout_gravity="center_vertical"
+            android:contentDescription="@string/password"/>
+
+        <EditText
+            android:id="@+id/et_rPW"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="10dp"
+            android:layout_weight="1"
+            android:textColor="@android:color/white"
+            android:hint="@string/registerPassword"
+            android:textColorHint="@android:color/white"
+            android:inputType="textPassword"
+            android:singleLine="true"
+            android:background="@null"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:orientation="horizontal"
+        android:background="@drawable/editbg_w"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp">
+
+        <ImageView
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:src="@drawable/key"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="8dp"
+            android:layout_gravity="center_vertical"
+            android:contentDescription="@string/password"/>
+
+        <EditText
+            android:id="@+id/et_rSurePW"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="10dp"
+            android:layout_weight="1"
+            android:textColor="@android:color/white"
+            android:hint="@string/registerSurePW"
+            android:textColorHint="@android:color/white"
+            android:inputType="textPassword"
+            android:singleLine="true"
+            android:background="@null"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/mac_ll"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:orientation="horizontal"
+        android:background="@drawable/editbg_w"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:src="@drawable/mac_small"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="8dp"
+            android:layout_gravity="center_vertical"
+            android:contentDescription="@string/account"/>
+
+        <EditText
+            android:id="@+id/et_mac"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:textColor="@android:color/white"
+            android:textColorHint="@android:color/white"
+            android:inputType="text"
+            android:singleLine="true"
+            android:background="@null"/>
+
+        <Button
+            android:id="@+id/btn_attention"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_marginRight="10dp"
+            android:layout_gravity="center_vertical"
+            android:background="@drawable/attention"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:orientation="horizontal"
+        android:background="@drawable/editbg_w"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp">
+
+        <ImageView
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:src="@drawable/mobile_small"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="8dp"
+            android:layout_gravity="center_vertical"
+            android:contentDescription="@string/registerPhone"/>
+
+        <EditText
+            android:id="@+id/et_phone"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="10dp"
+            android:layout_weight="1"
+            android:textColor="@android:color/white"
+            android:hint="@string/registerPhone"
+            android:textColorHint="@android:color/white"
+            android:inputType="phone"
+            android:singleLine="true"
+            android:background="@null"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:orientation="horizontal"
+        android:background="@drawable/editbg_w"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp">
+
+        <ImageView
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:src="@drawable/email_small"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="8dp"
+            android:layout_gravity="center_vertical"
+            android:contentDescription="@string/registerEmail"/>
+
+        <EditText
+            android:id="@+id/et_email"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="10dp"
+            android:layout_weight="1"
+            android:textColor="@android:color/white"
+            android:hint="@string/registerEmail"
+            android:textColorHint="@android:color/white"
+            android:inputType="textEmailAddress"
+            android:singleLine="true"
+            android:background="@null"/>
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/btn_register"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:text="@string/summit"
+                android:textSize="16sp"
+                android:textColor="@android:color/white"
+                android:background="@drawable/btn_login"/>
+        </FrameLayout>
+
+        <!-- Register progress -->
+        <ProgressBar
+            android:id="@+id/register_progress"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_centerHorizontal="true"
+            android:visibility="gone"/>
+    </RelativeLayout>
+</LinearLayout>

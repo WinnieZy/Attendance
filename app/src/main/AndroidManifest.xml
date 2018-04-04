@@ -28,7 +28,11 @@
         </activity>
         <activity
             android:name=".LoginActivity"
-            android:theme="@style/NoActionBarTheme"></activity>
+            android:theme="@style/NoActionBarTheme" />
+        <activity
+            android:name=".RegisterActivity"
+            android:theme="@style/AppTheme"
+            android:label="@string/registerTitle"/>
     </application>
 
 </manifest>

@@ -25,12 +25,15 @@ import android.text.TextUtils;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,6 +42,7 @@ import com.zy.attendance.bean.User;
 import com.zy.attendance.constants.NetAddress;
 import com.zy.attendance.storage.dao.StaffDao;
 import com.zy.attendance.storage.dao.UserDao;
+import com.zy.attendance.uilib.BaseDialog;
 import com.zy.attendance.utils.DateUtil;
 import com.zy.attendance.utils.HttpUtil;
 import com.zy.attendance.utils.IHttpCallBack;
@@ -79,14 +83,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
-    private Button mClearAccountBtn;
-    private Button mSeePasswordBtn;
-    private TextView mRegisterLinkTv;
     private StaffDao mStaffDao;
     private UserDao mUserDao;
     private String mUsername;
     private String mPassword;
+    private String mReviewMac = "";
+    private boolean mIsMacChecked;
     private boolean mPwVisible;
+    private boolean mNotSameUser;
     // Handler交互的信息
     private static final int MSG_DO_LOGIN = 1;
     private static final int MSG_LOGIN_SUCCESS = 2;
@@ -106,15 +110,31 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 }
                 case MSG_LOGIN_SUCCESS:{
                     String response = msg.obj.toString();
+                    int first_login = msg.arg1;
                     Staff staff = JsonUtil.handleLoginData(response);
                     if (staff != null){
                         mStaffDao.setStaff(staff);
-                        User user = new User(mUsername,mPassword,staff.getStaff_id(), WiFiUtil.getLocalMacAddress(mContext), DateUtil.getFormatDate(),true);
-                        mUserDao.setUser(user);
+                        if (first_login == 1){
+                            mIsMacChecked = !"".equals(mReviewMac);
+                            User user = new User(mUsername,mPassword,staff.getStaff_id(), mReviewMac, DateUtil.getFormatDate(),mIsMacChecked);
+                            mUserDao.setUser(user);
+                            Intent intent = new Intent(LoginActivity.this,RegisterActivity.class);
+                            startActivity(intent);
+                        }else {
+                            //需判断本次登录用户是否为上次登录用户
+                            if (mNotSameUser){//用户登录非绑定设备,直接覆盖原用户信息
+                                Log.e(TAG,"用户登录非绑定设备");
+                                mUserDao.setUsername(mUsername);
+                                mUserDao.setPassword(mPassword);
+                                mUserDao.setStaffID(staff.getStaff_id());
+                            }
+                            mUserDao.setLastLoginTime(DateUtil.getFormatDate());
+                            mUserDao.setIsOnline(true);
+                            Intent intent = new Intent(LoginActivity.this,MainActivity.class);
+                            startActivity(intent);
+                        }
                         Log.e(TAG,staff.toString());
-                        Log.e(TAG,user.toString());
-                        Intent intent = new Intent(LoginActivity.this,MainActivity.class);
-                        startActivity(intent);
+                        Log.e(TAG,mUserDao.getUser().toString());
                         finish();
                     }else {
                         Toast.makeText(mContext,"获取用户信息失败，请稍后重试",Toast.LENGTH_LONG).show();
@@ -160,13 +180,18 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
-        mClearAccountBtn = (Button) findViewById(R.id.btn_clearAccount);
-        mClearAccountBtn.setOnClickListener(this);
-        mSeePasswordBtn = (Button) findViewById(R.id.btn_seePassword);
-        mSeePasswordBtn.setOnClickListener(this);
-        mRegisterLinkTv = (TextView) findViewById(R.id.tv_register_link);
-        mRegisterLinkTv.getPaint().setFlags(Paint. UNDERLINE_TEXT_FLAG );
-        mRegisterLinkTv.setOnClickListener(this);
+        Button clearAccountBtn = (Button) findViewById(R.id.btn_clearAccount);
+        clearAccountBtn.setOnClickListener(this);
+        Button seePasswordBtn = (Button) findViewById(R.id.btn_seePassword);
+        seePasswordBtn.setOnClickListener(this);
+        mIsMacChecked = mUserDao.getIsMacChecked();
+        Log.e(TAG,"user:"+mUserDao.getUser().toString());
+        if (!mIsMacChecked){
+            TextView registerLinkTv = (TextView) findViewById(R.id.tv_register_link);
+            registerLinkTv.getPaint().setFlags(Paint. UNDERLINE_TEXT_FLAG );
+            registerLinkTv.setVisibility(View.VISIBLE);
+            registerLinkTv.setOnClickListener(this);
+        }
         //test
         mAccountView.setText("周泳_14");
         mPasswordView.setText("111111");
@@ -231,25 +256,30 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String username = mAccountView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        mUsername = mAccountView.getText().toString();
+        mPassword = mPasswordView.getText().toString();
+        mNotSameUser = !mUsername.equals(mUserDao.getUsername());
 
         boolean cancel = false;
         View focusView = null;
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+        if (TextUtils.isEmpty(mPassword)) {
+            mAccountView.setError(getString(R.string.error_field_required));
+            focusView = mAccountView;
+            cancel = true;
+        }else if (!isPasswordValid(mPassword)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
         }
 
         // Check for a valid username address.
-        if (TextUtils.isEmpty(username)) {
+        if (TextUtils.isEmpty(mUsername)) {
             mAccountView.setError(getString(R.string.error_field_required));
             focusView = mAccountView;
             cancel = true;
-        } else if (!isEmailValid(username)) {
+        } else if (!isEmailValid(mUsername)) {
             mAccountView.setError(getString(R.string.error_invalid_username));
             focusView = mAccountView;
             cancel = true;
@@ -367,7 +397,34 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 }
                 break;
             case R.id.tv_register_link:
-
+                final BaseDialog macDialog = new BaseDialog(mContext);
+                macDialog.setTitle("设备mac校验");
+                View macView = LayoutInflater.from(mContext).inflate(R.layout.dialog_mac,null);
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                params.gravity = Gravity.CENTER;
+                macDialog.setContentView(macView, params);
+                final EditText macEdt = macView.findViewById(R.id.edt_mac);
+                macEdt.setText(WiFiUtil.getLocalMacAddress(mContext));
+                TextView macTv = macView.findViewById(R.id.tv_mac);
+                macTv.setText(getString(R.string.mac_review_login));
+                macDialog.setPositiveButton("确认无误", new OnClickListener() {
+                   @Override
+                   public void onClick(View view) {
+                       String reviewMac = macEdt.getText().toString();
+                       Log.e(TAG,"isMac:"+WiFiUtil.isMacAddress(reviewMac));
+                       if (!"".equals(reviewMac) && WiFiUtil.isMacAddress(reviewMac)){
+                            mReviewMac = reviewMac;
+                       }
+                       macDialog.dismiss();
+                   }
+                });
+                macDialog.setNegativeButton("稍后确认", new OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        macDialog.dismiss();
+                    }
+                });
+                macDialog.show();
                 break;
             default:
                 break;
@@ -464,11 +521,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private void doLogin() {
         //发送用户名密码至网络端，正确则返回用户信息
         String address = NetAddress.USER_REQUEST ;
-        String[] key = {"username","password"};
-        mUsername = mAccountView.getText().toString();
-        mPassword = mPasswordView.getText().toString();
-        String[] value = {mUsername,mPassword};
-        String jsonString = JsonUtil.createUserJSONString(key,value);
+        String[] key = {"username","password","reviewMac","getMac"};
+        String[] value = {mUsername,mPassword,mReviewMac,String.valueOf(mNotSameUser)};
+        String jsonString = JsonUtil.createJSONString(key,value);
         Log.d(TAG, "jsonString:"+jsonString);
         Log.d(TAG, "address:"+address);
         HttpUtil.sendPostHttpRequest(address, jsonString,new IHttpCallBack() {
@@ -477,16 +532,31 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             public void onFinish(String response) {
                 Log.d(TAG, "response:"+response.toString());
                 String result = JsonUtil.handleLoginResponse(response);
-                if ("登录成功".equals(result)){
-                    Message message = new Message();
-                    message.what = MSG_LOGIN_SUCCESS;
-                    message.obj = response;
-                    mHandler.sendMessage(message);
+                String code = result.substring(0,3);
+                String message = result.substring(3);
+                Log.e(TAG,"code:"+code+",message:"+message);
+                if ("200".equals(code)){
+                    Message msg = new Message();
+                    msg.what = MSG_LOGIN_SUCCESS;
+                    msg.obj = response;
+                    if ("first_login".equals(message)){
+                        msg.arg1 = 1;
+                    }else if ("success".equals(message)){
+                        msg.arg1 = 0;
+                    }else {
+                        msg.arg1 = 0;
+                        if (!"".equals(message) && WiFiUtil.isMacAddress(message)){
+                            mUserDao.setMac(message);
+                            mUserDao.setIsMacChecked(true);
+                        }
+                        Log.e(TAG,"用户登录非绑定设备，重置mac:"+message);
+                    }
+                    mHandler.sendMessage(msg);
                 }else {
-                    Message message = new Message();
-                    message.what = MSG_LOGIN_FAIL;
-                    message.obj = result;
-                    mHandler.sendMessage(message);
+                    Message msg = new Message();
+                    msg.what = MSG_LOGIN_FAIL;
+                    msg.obj = result;
+                    mHandler.sendMessage(msg);
                 }
             }
 

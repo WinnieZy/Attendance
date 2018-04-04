@@ -41,12 +41,12 @@ public class UserDao {
         mEditor.putInt("staffId",user.getStaff_id());
         mEditor.putString("mac", user.getMac());
         mEditor.putString("lastLoginTime", user.getLast_login_time());
-        mEditor.putBoolean("isOnline", user.getIsOnline());
+        mEditor.putBoolean("isMacChecked", user.getIsMacChecked());
         mEditor.apply();
     }
 
     public User getUser(){
-        return new User(getUsername(),getPassword(), getStaffId(),getMac(),getLastLoginTime(),getIsOnline());
+        return new User(getUsername(),getPassword(), getStaffId(),getMac(),getLastLoginTime(),getIsMacChecked());
     }
 
     public void setUsername(String username) {
@@ -94,6 +94,19 @@ public class UserDao {
         return mSharedPreferences.getString("lastLoginTime","");
     }
 
+    public void setIsMacChecked(boolean isMacChecked) {
+        mEditor.putBoolean("isMacChecked", isMacChecked);
+        mEditor.apply();
+    }
+
+    public Boolean getIsMacChecked() {
+        return mSharedPreferences.getBoolean("isMacChecked",false);
+    }
+
+    /**
+     * 记录用户是否在线
+     * @param isOnline
+     */
     public void setIsOnline(boolean isOnline) {
         mEditor.putBoolean("isOnline", isOnline);
         mEditor.apply();

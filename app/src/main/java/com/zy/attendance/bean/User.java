@@ -10,15 +10,15 @@ public class User {
     private int staff_id;
     private String mac;
     private String last_login_time;
-    private boolean isOnline;
+    private boolean isMacChecked;
 
-    public User(String username, String password, int staff_id, String mac, String last_login_time, boolean isOnline) {
+    public User(String username, String password, int staff_id, String mac, String last_login_time, boolean isMacChecked) {
         this.username = username;
         this.password = password;
         this.staff_id = staff_id;
         this.mac = mac;
         this.last_login_time = last_login_time;
-        this.isOnline = isOnline;
+        this.isMacChecked = isMacChecked;
     }
 
     public String getUsername() {
@@ -61,12 +61,12 @@ public class User {
         this.last_login_time = last_login_time;
     }
 
-    public boolean getIsOnline() {
-        return isOnline;
+    public boolean getIsMacChecked() {
+        return isMacChecked;
     }
 
-    public void setIsOnline(boolean isOnline) {
-        isOnline = isOnline;
+    public void setIsMacChecked(boolean isMacChecked) {
+        this.isMacChecked = isMacChecked;
     }
 
     @Override
@@ -77,7 +77,7 @@ public class User {
                 .append(staff_id).append(",")
                 .append(mac).append(",")
                 .append(last_login_time).append(",")
-                .append(isOnline ? "online" : "offline")
+                .append(isMacChecked ? "checked" : "unchecked")
                 .append("]").toString();
     }
 }

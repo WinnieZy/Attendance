@@ -7,6 +7,7 @@ import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 /**
@@ -68,6 +69,23 @@ public class UIConfig {
 	 */
 	public static void initUILib(Context context) {
 		mUILibContext = context;
+		initCanvas(mUILibContext);
+	}
+
+	/**
+	 * 初始化屏幕宽高
+	 */
+	private static void initCanvas(Context context) {
+		WindowManager wm = (WindowManager) context.getApplicationContext()
+				.getSystemService(Context.WINDOW_SERVICE);
+		canvasWidth = wm.getDefaultDisplay().getWidth();
+		canvasHeight = wm.getDefaultDisplay().getHeight();
+
+		int width = canvasWidth;
+		if (width > canvasHeight) {
+			canvasWidth = canvasHeight;
+			canvasHeight = width;
+		}
 	}
 
 	/**

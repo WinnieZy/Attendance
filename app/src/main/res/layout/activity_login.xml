@@ -117,7 +117,6 @@
             android:layout_marginTop="10dp"
             android:layout_alignRight="@id/ll_password"
             android:text="@string/forget"
-            android:textSize="12sp"
             android:textColor="@color/colorPrimary"
             android:linksClickable="true"/>
 
@@ -129,17 +128,17 @@
             android:layout_alignRight="@id/ll_account">
 
             <Button
-            android:id="@+id/btn_login"
-            android:layout_width="match_parent"
-            android:layout_height="46dp"
-            android:layout_below="@id/tv_forget"
-            android:layout_marginTop="30dp"
-            android:layout_alignLeft="@id/ll_account"
-            android:layout_alignRight="@id/ll_account"
-            android:text="@string/login"
-            android:textSize="16sp"
-            android:textColor="@android:color/white"
-            android:background="@drawable/btn_login"/>
+                android:id="@+id/btn_login"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                android:layout_below="@id/tv_forget"
+                android:layout_marginTop="30dp"
+                android:layout_alignLeft="@id/ll_account"
+                android:layout_alignRight="@id/ll_account"
+                android:text="@string/login"
+                android:textSize="16sp"
+                android:textColor="@android:color/white"
+                android:background="@drawable/btn_login"/>
         </FrameLayout>
 
         <!-- Login progress -->
@@ -162,7 +161,7 @@
             android:linksClickable="true"
             android:text="@string/register_link"
             android:textColor="@color/colorPrimary"
-            android:textSize="12sp" />
+            android:visibility="gone"/>
 
     </RelativeLayout>
 </ScrollView>

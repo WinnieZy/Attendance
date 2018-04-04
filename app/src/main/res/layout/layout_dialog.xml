@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <RelativeLayout
+        android:id="@+id/dialog_content_root_view"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+        <RelativeLayout
+            android:id="@+id/dialog_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true" >
+
+            <!-- 标题 内容 按钮 -->
+
+            <LinearLayout
+                android:id="@+id/dialog_container_layout"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
+                <!-- 标题 -->
+                <TextView
+                    android:id="@+id/dialog_title_text"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="@dimen/normal_title_view_padding_bottom"
+                    android:paddingTop="@dimen/normal_title_view_padding_top"
+                    android:gravity="center"
+                    android:textSize="18sp"
+                    android:singleLine="true" />
+                <!-- 内容 -->
+
+                <LinearLayout
+                    android:id="@+id/dialog_content_layout"
+                    android:layout_width="fill_parent"
+                    android:layout_height="0dip"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:paddingBottom="@dimen/normal_content_view_padding_bottom"
+                    android:paddingLeft="@dimen/normal_content_view_padding_left"
+                    android:paddingRight="@dimen/normal_content_view_padding_right"
+                    android:paddingTop="@dimen/normal_content_view_padding_top" >
+                </LinearLayout>
+
+                <!-- 分割线 -->
+
+                <View
+                    android:id="@+id/dialog_title_divider"
+                    android:layout_width="fill_parent"
+                    android:layout_height="1px"
+                    android:background="#33979797" />
+
+                <!-- 按钮 -->
+
+                <LinearLayout
+                    android:id="@+id/dialog_button_layout"
+                    android:layout_width="fill_parent"
+                    android:layout_height="@dimen/dialog_button_height"
+                    android:orientation="horizontal" >
+
+                    <Button
+                        android:id="@+id/dialog_button_one"
+                        android:layout_width="0dip"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:background="@null"/>
+
+                    <View
+                        android:id="@+id/dialog_button_gap"
+                        android:layout_width="1px"
+                        android:layout_height="fill_parent"
+                        android:background="#FFEAEAEA" />
+
+                    <Button
+                        android:id="@+id/dialog_button_two"
+                        android:layout_width="0dip"
+                        android:layout_height="fill_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:background="@null"/>
+                </LinearLayout>
+            </LinearLayout>
+        </RelativeLayout>
+    </RelativeLayout>
+</RelativeLayout>

@@ -44,15 +44,11 @@ public class JsonUtil {
             JSONObject jsonObject = new JSONObject(response);
             String code = jsonObject.getString("code");
             String message = jsonObject.getString("message");
-            if (code.equals("200")&&message.equals("success")){
-                return "登录成功";
-            }else {
-                return message;
-            }
+            return code+message;
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return "未知错误";
+        return "400未知错误";
     }
 
     public static Staff handleLoginData(String response){
@@ -72,11 +68,24 @@ public class JsonUtil {
         return null;
     }
 
+    public static String handleRegisterResponse(String response){
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            String code = jsonObject.getString("code");
+            String message = jsonObject.getString("message");
+            return code+message;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return "400未知错误";
+    }
+
     //用于生成Json字符串post到服务器端
-    public static String createUserJSONString(String[] key, String[] value){
+    public static String createJSONString(String[] key, String[] value){
         try {
             JSONObject jsonObject = new JSONObject();
             for (int i = 0; i < key.length; i++) {
+                Log.e("LoginActivity",key[i]+value[i]);
                 jsonObject.put(key[i],value[i]);
             }
             String json = String.valueOf(jsonObject);
