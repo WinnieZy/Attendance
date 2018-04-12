@@ -7,7 +7,7 @@
 
     <!-- 加载中的loading -->
     <LinearLayout
-        android:id="@+id/list_is_null_loading"
+        android:id="@+id/list_is_loading"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_centerInParent="true"

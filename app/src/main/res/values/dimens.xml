@@ -45,4 +45,6 @@
     <dimen name="q_dialog_temp_view_height">140dp</dimen>
     <dimen name="q_loading_view_stroke_width">3dp</dimen>
 
+    <dimen name="fab_margin">16dp</dimen>
+
 </resources>

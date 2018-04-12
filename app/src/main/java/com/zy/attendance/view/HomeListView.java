@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +16,8 @@ import android.widget.TextView;
 
 import com.zy.attendance.R;
 import com.zy.attendance.bean.MacRecord;
+import com.zy.attendance.storage.dao.UserDao;
+import com.zy.attendance.storage.db.DbOperator;
 import com.zy.attendance.uilib.QLoadingView;
 import com.zy.attendance.utils.IDataCallback;
 
@@ -24,6 +29,8 @@ import java.util.ArrayList;
 
 public class HomeListView extends LinearLayout implements IMainView,IDataCallback {
 
+    private static final String TAG = "HomeListView";
+
     private View mLoadingParent;
     private QLoadingView mLoadingView;
     private TextView mLoadingText;
@@ -33,18 +40,48 @@ public class HomeListView extends LinearLayout implements IMainView,IDataCallbac
     private View mContentView;
     private LinearLayout mTitle_ll;
     private ArrayList mMacRecordList;
+    private UserDao mUserDao;
+    private DbOperator mDbOperator;
+
+    // Handler交互的信息
+    private static final int MSG_TIME_OUT = 1;
+    private Handler mHandler = new Handler(Looper.getMainLooper()){
+        @Override
+        public void handleMessage(Message msg) {
+            if (msg == null) {
+                // 窗口不存在，不处理消息
+                return;
+            }
+            Log.i(TAG, "handleMessage what = " + msg.what);
+            switch (msg.what) {
+                case MSG_TIME_OUT:
+                    mLoadingView.stopRotationAnimation();
+                    mLoadingText.setText("哎呀，加载失败了，请稍后重试~");
+                    mLoadingView.setVisibility(INVISIBLE);
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 
     public HomeListView(Context context) throws InterruptedException {
         super(context);
         mContext = context;
+        mUserDao = new UserDao(mContext);
+        mDbOperator = DbOperator.getInstance(mContext);
         initUi();
+    }
+
+    public IDataCallback getListViewCallback(){
+        return this;
     }
 
     private void initUi() throws InterruptedException {
         mContentView = LayoutInflater.from(mContext).inflate(R.layout.layout_home_list_view,null);
         mTitle_ll = mContentView.findViewById(R.id.ll_title);
         mListView = mContentView.findViewById(R.id.list_view_home);
-        mLoadingParent = mContentView.findViewById(R.id.list_is_null_loading);
+        mLoadingParent = mContentView.findViewById(R.id.list_is_loading);
         mLoadingView = mContentView.findViewById(R.id.loading_view);
         mLoadingText = mContentView.findViewById(R.id.loading_text);
 
@@ -53,59 +90,55 @@ public class HomeListView extends LinearLayout implements IMainView,IDataCallbac
         mLoadingParent.setVisibility(View.VISIBLE);
         mLoadingView.setLoadingViewByType(1);
         mLoadingView.startRotationAnimation();
-        final IDataCallback callback = this;
-        Log.i("winnie","Thread");
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Log.i("winnie","try");
-                    loadingData(callback);
-                } catch (InterruptedException e) {
-                    Log.i("winnie","catch");
-                    e.printStackTrace();
-                }
-            }
-        }).start();
+
+        mHandler.sendEmptyMessageDelayed(MSG_TIME_OUT,8000);
     }
 
-    public void loadingData(IDataCallback callback) throws InterruptedException {
-        Log.i("winnie","loadingData");
-        ArrayList<MacRecord> arrayList = new ArrayList<>(5);
-        for (int i = 0; i < 50; i++) {
-            MacRecord macRecord = new MacRecord("03-21(二)","10:45:12","22:32:15");
-            arrayList.add(macRecord);
+    public void loadingData() {
+        Log.i(TAG,"loadingData");
+        ArrayList<MacRecord> arrayList = mDbOperator.queryMacRecord("mac",mUserDao.getMac());
+        for (int i = arrayList.size() - 1; i >= 0; i--) {
+            Log.i(TAG,"HomeListView loadingData:"+arrayList.get(i).toString());
         }
-        new Thread().sleep(3000);
-        Bundle bundle = new Bundle();
-        bundle.putParcelableArrayList("mac",arrayList);
-        callback.onCallback(null,bundle);
+        updateListView(arrayList);
+//        new Thread().sleep(5000);
+//        Bundle bundle = new Bundle();
+//        bundle.putParcelableArrayList("macList",arrayList);
+//        callback.onCallback(null,bundle);
     }
 
     public void updateListView(final ArrayList arrayList){
         ((Activity)mContext).runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Log.i("winnie","updateListView");
-                mLoadingView.stopRotationAnimation();
+                Log.i(TAG,"updateListView");
                 if (arrayList == null){
+                    mLoadingView.stopRotationAnimation();
                     mLoadingText.setText("哎呀，加载失败了，请稍后重试~");
                     mLoadingView.setVisibility(INVISIBLE);
                 }else {
-                    mListViewAdapter.setListViewData(arrayList);
-                    mLoadingParent.setVisibility(View.GONE);
-                }
-                mTitle_ll.setVisibility(VISIBLE);
-                if (mListView != null){
-                    mListView.setVisibility(VISIBLE);
-                    View view = new View(mContext);
-                    LayoutParams lp = new LayoutParams(1, 1);
-                    view.setLayoutParams(lp);
-                    mListView.addHeaderView(view);
-                    mListView.addFooterView(view);
-                }
-                if (mListViewAdapter != null){
-                    mListViewAdapter.notifyDataSetChanged();
+                    if (arrayList.size()==0){
+                        mLoadingView.stopRotationAnimation();
+                        mLoadingParent.setVisibility(View.GONE);
+                        mLoadingText.setText("当前用户查无考勤记录");
+                        mLoadingView.setVisibility(INVISIBLE);
+                    }else {
+                        mListViewAdapter.setListViewData(arrayList);
+                        mTitle_ll.setVisibility(VISIBLE);
+                        if (mListView != null) {
+                            mLoadingView.stopRotationAnimation();
+                            mLoadingParent.setVisibility(View.GONE);
+                            mListView.setVisibility(VISIBLE);
+                            View view = new View(mContext);
+                            LayoutParams lp = new LayoutParams(1, 1);
+                            view.setLayoutParams(lp);
+                            mListView.addHeaderView(view);
+//                    mListView.addFooterView(view);
+                        }
+                        if (mListViewAdapter != null) {
+                            mListViewAdapter.notifyDataSetChanged();
+                        }
+                    }
                 }
             }
         });
@@ -175,10 +208,10 @@ public class HomeListView extends LinearLayout implements IMainView,IDataCallbac
     }
 
     @Override
-    public void onCallback(Bundle inBundle, Bundle outBundle) {
-        Log.i("winnie","onCallback");
-        mMacRecordList = outBundle.getParcelableArrayList("mac");
-        updateListView(mMacRecordList);
+    public void onCallback(String result, Bundle outBundle) {
+        Log.i(TAG,"onCallback");
+        mHandler.removeMessages(MSG_TIME_OUT);
+        loadingData();
     }
 
     @Override

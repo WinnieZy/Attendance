@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -13,8 +15,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.zy.attendance.bean.MacRecord;
+import com.zy.attendance.constants.NetAddress;
 import com.zy.attendance.storage.dao.UserDao;
+import com.zy.attendance.storage.db.DbOperator;
 import com.zy.attendance.uilib.UIConfig;
+import com.zy.attendance.utils.DateUtil;
+import com.zy.attendance.utils.HttpUtil;
+import com.zy.attendance.utils.IHttpCallBack;
+import com.zy.attendance.utils.JsonUtil;
+import com.zy.attendance.utils.WiFiUtil;
 import com.zy.attendance.view.HomeListView;
 import com.zy.attendance.view.IMainView;
 import com.zy.attendance.view.ManagementView;
@@ -27,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     private ViewPager mViewPager;
+    private FloatingActionButton fab;
     private BottomNavigationView mBottomNavigationView;
     final ArrayList<IMainView> viewHandler = new ArrayList<IMainView>();
     private final ArrayList<View> viewContainer = new ArrayList<View>();
@@ -34,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private ManagementView mManagementView;
     private HomeListView mHomeListView;
     private PersonalCenterView mPersonalCenterView;
+    private DbOperator mDbOperator;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -86,29 +98,39 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager.OnPageChangeListener mOnPageChangeListener = new ViewPager.OnPageChangeListener() {
         @Override
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-//            Log.i("winnie", " onPageScrolled position = " + position);
-//            Log.i("winnie", " onPageScrolled positionOffset = " + positionOffset);
-//            Log.i("winnie", " onPageScrolled positionOffsetPixels = " + positionOffsetPixels);
+//            Log.i(TAG, " onPageScrolled position = " + position);
+//            Log.i(TAG, " onPageScrolled positionOffset = " + positionOffset);
+//            Log.i(TAG, " onPageScrolled positionOffsetPixels = " + positionOffsetPixels);
         }
 
         @Override
         public void onPageSelected(int position) {
-//            Log.i("winnie", " onPageSelected position = " + position);
-//            Log.i("winnie", " viewpager position = " + mViewPager.getCurrentItem());
+//            Log.i(TAG, " onPageSelected position = " + position);
+//            Log.i(TAG, " viewpager position = " + mViewPager.getCurrentItem());
             synchronized (viewHandler) {
                 for (int i = 0; i < viewHandler.size(); i++) {
                     if(position == i){
                         viewHandler.get(i).onShow();
-                        Log.i("winnie", " onPageSelected position = " + position + "viewSub.onPrepareShow()");
+                        Log.i(TAG, " onPageSelected position = " + position + "viewSub.onPrepareShow()");
                     }
                 }
             }
             switchTab(position);
+            if (position == 2){
+                fab.setVisibility(View.GONE);
+            }else {
+                fab.setVisibility(View.VISIBLE);
+                if (position == 0){
+                    fab.setImageResource(R.drawable.editor);
+                }else if (position == 1){
+                    fab.setImageResource(R.drawable.calendar);
+                }
+            }
         }
 
         @Override
         public void onPageScrollStateChanged(int state) {
-//            Log.i("winnie", " onPageScrollStateChanged state = " + state);
+//            Log.i(TAG, " onPageScrollStateChanged state = " + state);
         }
     };
 
@@ -121,9 +143,24 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this,LoginActivity.class);
             startActivity(intent);
             finish();
+            return;
         }
+        mDbOperator = DbOperator.getInstance(mContext);
         UIConfig.initUILib(mContext);
         mViewPager = (ViewPager) findViewById(R.id.viewPager);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mViewPager.getCurrentItem() == 0){
+                    Snackbar.make(view, "Current position is managementPage", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                }else if (mViewPager.getCurrentItem() == 1){
+                    Snackbar.make(view, "Current position is ListViewPage", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                }
+            }
+        });
         mBottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation);
         mBottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
@@ -162,6 +199,85 @@ public class MainActivity extends AppCompatActivity {
         mViewPager.addOnPageChangeListener(mOnPageChangeListener);
         mViewPager.setCurrentItem(1);
         mBottomNavigationView.setSelectedItemId(mBottomNavigationView.getMenu().getItem(1).getItemId());
+
+        initializeData();
+    }
+
+    private void initializeData() {
+        String mac = new UserDao(mContext).getMac();
+        if ("".equals(mac)){
+            mac = WiFiUtil.getLocalMacAddress(mContext);
+        }
+        MacRecord macRecord = mDbOperator.getLatestMacRecord();
+        String date = "";
+        int updateId = -1;
+        boolean isAdd = true;
+        if (macRecord != null){
+            //TODO
+            date = DateUtil.combineMacDate(macRecord);
+            String date10 = date.substring(0,10);
+            if (date10.equals(DateUtil.getFormatDate(false))){
+                isAdd = false;
+                updateId = macRecord.getId();
+            }
+        }
+//        String address = NetAddress.MAC_REQUEST + "?mac="+mac+"&&date="+date+"&&isAdd="+isAdd;
+
+        String isAddStr = String.valueOf(isAdd);
+        String address = NetAddress.MAC_REQUEST ;
+        Log.d(TAG, "MainActivity getMac address:" + address);
+        String[] key = {"mac","date","isAdd"};
+        String[] value = {mac,date,isAddStr};
+        String jsonString = JsonUtil.createJSONString(key,value);
+        Log.d(TAG, "jsonString:"+jsonString);
+        Log.d(TAG, "address:"+address);
+        final boolean finalIsAdd = isAdd;
+        final int finalUpdateId = updateId;
+        HttpUtil.sendPostHttpRequest(address, jsonString,new IHttpCallBack() {
+
+            @Override
+            public void onFinish(String response) {
+                Log.d(TAG, "response:" + response);
+                String result = JsonUtil.handleGeneralResponse(response);
+                String code = result.substring(0,3);
+                String message = result.substring(3);
+                Log.e(TAG,"code:"+code+",message:"+message);
+                if ("200".equals(code)){
+                    if ("success".equals(message)){
+                        ArrayList<MacRecord> macList= JsonUtil.handleMacResponse(response);
+                        if (macList != null){
+                            if (finalIsAdd){
+                                Log.e(TAG,"isAdd mac");
+                                for (MacRecord macRecord : macList){
+                                    Log.e(TAG,macRecord.toString());
+                                    mDbOperator.addMacRecord(macRecord);
+                                }
+                            }else {
+                                Log.e(TAG,"update mac");
+                                mDbOperator.updateMacRecord(finalUpdateId,macList.get(0));
+                            }
+                        }
+                    }else {
+                        Log.e(TAG,"200 and message:"+message);
+                    }
+                }else{
+                    Log.e(TAG,"code:"+code+",message:"+message);
+                }
+
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    Log.e(TAG,"thread sleep catch,message:"+e.getMessage());
+                }
+                mHomeListView.getListViewCallback().onCallback(null,null);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Log.d(TAG, "error:" + e.getMessage());
+                mHomeListView.getListViewCallback().onCallback(null,null);
+            }
+        });
     }
 
     private void switchTab(int index){
@@ -207,7 +323,7 @@ public class MainActivity extends AppCompatActivity {
 @Override
 public void run() {
 //发送用户名密码至网络端，正确则返回所有用户信息存入数据库
-String address = NetAddress.MAC_REQUEST + "?mac=0C:8F:FF:82:19:67&&date=2018-03-21";
+String address = NetAddress.MAC_REQUEST + "?mac=0C:8F:FF:82:19:67&&date=2018-04-09";
 HttpUtil.sendGetHttpRequest(address, new IHttpCallBack() {
 
 @Override

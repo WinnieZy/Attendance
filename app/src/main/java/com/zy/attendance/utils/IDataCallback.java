@@ -7,6 +7,6 @@ import android.os.Bundle;
  */
 
 public interface IDataCallback {
-    public void onCallback(Bundle inBundle, Bundle outBundle);
+    public void onCallback(String result, Bundle outBundle);
     public void onHostFail(int errCode, String errMsg, Bundle inBundle);
 }

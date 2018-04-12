@@ -117,7 +117,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         mStaffDao.setStaff(staff);
                         if (first_login == 1){
                             mIsMacChecked = !"".equals(mReviewMac);
-                            User user = new User(mUsername,mPassword,staff.getStaff_id(), mReviewMac, DateUtil.getFormatDate(),mIsMacChecked);
+                            User user = new User(mUsername,mPassword,staff.getStaff_id(), mReviewMac, DateUtil.getFormatDate(true),mIsMacChecked);
                             mUserDao.setUser(user);
                             Intent intent = new Intent(LoginActivity.this,RegisterActivity.class);
                             startActivity(intent);
@@ -129,7 +129,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                 mUserDao.setPassword(mPassword);
                                 mUserDao.setStaffID(staff.getStaff_id());
                             }
-                            mUserDao.setLastLoginTime(DateUtil.getFormatDate());
+                            mUserDao.setLastLoginTime(DateUtil.getFormatDate(true));
                             mUserDao.setIsOnline(true);
                             Intent intent = new Intent(LoginActivity.this,MainActivity.class);
                             startActivity(intent);
@@ -194,8 +194,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             registerLinkTv.setOnClickListener(this);
         }
         //test
-        mAccountView.setText("周泳_14");
-        mPasswordView.setText("111111");
+        mAccountView.setText("默认领导_9");
+        mPasswordView.setText("123456");
     }
 
     private void populateAutoComplete() {
