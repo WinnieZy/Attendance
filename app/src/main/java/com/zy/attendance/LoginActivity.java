@@ -117,7 +117,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         mStaffDao.setStaff(staff);
                         if (first_login == 1){
                             mIsMacChecked = !"".equals(mReviewMac);
-                            User user = new User(mUsername,mPassword,staff.getStaff_id(), mReviewMac, DateUtil.getFormatDate(true),mIsMacChecked);
+                            User user = new User(mUsername,mPassword,staff.getStaff_id(), mReviewMac, DateUtil.getFormatDate("second"),mIsMacChecked);
                             mUserDao.setUser(user);
                             Intent intent = new Intent(LoginActivity.this,RegisterActivity.class);
                             startActivity(intent);
@@ -129,7 +129,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                 mUserDao.setPassword(mPassword);
                                 mUserDao.setStaffID(staff.getStaff_id());
                             }
-                            mUserDao.setLastLoginTime(DateUtil.getFormatDate(true));
+                            mUserDao.setLastLoginTime(DateUtil.getFormatDate("second"));
                             mUserDao.setIsOnline(true);
                             Intent intent = new Intent(LoginActivity.this,MainActivity.class);
                             startActivity(intent);

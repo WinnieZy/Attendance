@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,21 +17,30 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.prolificinteractive.materialcalendarview.CalendarDay;
+import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
+import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
+import com.prolificinteractive.materialcalendarview.OnMonthChangedListener;
 import com.zy.attendance.R;
 import com.zy.attendance.bean.MacRecord;
 import com.zy.attendance.controller.MacRequestCtl;
 import com.zy.attendance.storage.dao.UserDao;
 import com.zy.attendance.storage.db.DbOperator;
 import com.zy.attendance.uilib.QLoadingView;
+import com.zy.attendance.utils.DateUtil;
 import com.zy.attendance.utils.IDataCallback;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Locale;
 
 /**
  * Created by lenovo on 2018/3/26.
  */
 
-public class HomeListView extends LinearLayout implements IMainView,IDataCallback {
+public class HomeListView extends LinearLayout implements IMainView,IDataCallback,
+                OnDateSelectedListener,OnMonthChangedListener {
 
     private static final String TAG = "HomeListView";
 
@@ -45,6 +56,10 @@ public class HomeListView extends LinearLayout implements IMainView,IDataCallbac
     private ArrayList mMacRecordList;
     private UserDao mUserDao;
     private DbOperator mDbOperator;
+    private String mQueryDate;
+    private String mQueryMonth;
+    private String mQueryMonday;
+    private String mQuerySunday;
 
     // Handler交互的信息
     private static final int MSG_TIME_OUT = 1;
@@ -74,10 +89,6 @@ public class HomeListView extends LinearLayout implements IMainView,IDataCallbac
         mUserDao = new UserDao(mContext);
         mDbOperator = DbOperator.getInstance(mContext);
         initUi();
-    }
-
-    public IDataCallback getListViewCallback(){
-        return this;
     }
 
     private void initUi() throws InterruptedException {
@@ -123,9 +134,11 @@ public class HomeListView extends LinearLayout implements IMainView,IDataCallbac
 
     public void loadingData() {
         Log.i(TAG,"loadingData");
-        ArrayList<MacRecord> arrayList = mDbOperator.queryMacRecord("mac",mUserDao.getMac());
-        for (int i = arrayList.size() - 1; i >= 0; i--) {
-            Log.i(TAG,"HomeListView loadingData:"+arrayList.get(i).toString());
+        ArrayList<MacRecord> arrayList = mDbOperator.queryMacRecordByMonth(DateUtil.getFormatDate("month"));
+        if (null != arrayList && arrayList.size() > 0) {
+            for (int i = arrayList.size() - 1; i >= 0; i--) {
+                Log.i(TAG, "HomeListView loadingData:" + arrayList.get(i).toString());
+            }
         }
         updateListView(arrayList);
 //        new Thread().sleep(5000);
@@ -147,7 +160,7 @@ public class HomeListView extends LinearLayout implements IMainView,IDataCallbac
                     if (arrayList.size()==0){
                         mLoadingView.stopRotationAnimation();
                         mLoadingParent.setVisibility(View.GONE);
-                        mLoadingText.setText("当前用户查无考勤记录");
+                        mLoadingText.setText("当前查无考勤记录");
                         mLoadingView.setVisibility(INVISIBLE);
                     }else {
                         mListViewAdapter.setListViewData(arrayList);
@@ -235,12 +248,71 @@ public class HomeListView extends LinearLayout implements IMainView,IDataCallbac
     @Override
     public void onCallback(String result, Bundle outBundle) {
         Log.i(TAG,"onCallback");
-        mHandler.removeMessages(MSG_TIME_OUT);
-        loadingData();
+        if ("onCreate".equals(result)) {
+            mHandler.removeMessages(MSG_TIME_OUT);
+            loadingData();
+        }else if ("conditionQuery".equals(result)){
+            ArrayList<MacRecord> arrayList = null;
+            if (mQueryMonth == null && mQueryDate == null){
+                Log.e(TAG, "mQueryMonth == null && mQueryDate == null");
+                arrayList = mDbOperator.queryMacRecordByMonth(DateUtil.getFormatDate("month"));
+            }else {
+                if (mQueryDate != null) {
+                    Log.e(TAG, "mQueryDate != null");
+                    arrayList = mDbOperator.queryMacRecordByDate(mQueryMonday, mQuerySunday);
+                } else if (mQueryMonth != null) {
+                    Log.e(TAG, "mQueryMonth != null");
+                    arrayList = mDbOperator.queryMacRecordByMonth(mQueryMonth);
+                }
+            }
+            if (null != arrayList && arrayList.size() > 0) {
+                mListView.setVisibility(GONE);
+                mLoadingParent.setVisibility(View.VISIBLE);
+                mLoadingView.setLoadingViewByType(1);
+                mLoadingView.startRotationAnimation();
+                for (int i = arrayList.size() - 1; i >= 0; i--) {
+                    Log.i(TAG, "HomeListView conditionQuery:" + arrayList.get(i).toString());
+                }
+                updateListView(arrayList);
+            } else {
+                Snackbar.make(mContentView, "查无数据", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+            }
+        }else if ("clearDialogData".equals(result)){
+            mQueryDate = null;
+            mQueryMonday = null;
+            mQuerySunday = null;
+            mQueryMonth = null;
+        }
     }
 
     @Override
     public void onHostFail(int errCode, String errMsg, Bundle inBundle) {
 
+    }
+
+    @Override
+    public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-E", Locale.CHINA);
+
+        Calendar cal = date.getCalendar();
+        mQueryDate = sdf.format(cal.getTime());
+        int dayWeek = cal.get(Calendar.DAY_OF_WEEK);
+        if (1 == dayWeek) {
+            cal.add(Calendar.DAY_OF_MONTH, -1);
+        }
+        cal.setFirstDayOfWeek(Calendar.MONDAY);
+        int day = cal.get(Calendar.DAY_OF_WEEK);
+        cal.add(Calendar.DATE, cal.getFirstDayOfWeek() - day);
+        mQueryMonday = sdf.format(cal.getTime());
+        cal.add(Calendar.DATE, 6);
+        mQuerySunday = sdf.format(cal.getTime());
+        Log.e(TAG,"select date:"+mQueryDate+",mQueryMonday:"+mQueryMonday+",mQuerySunday:"+mQuerySunday);
+    }
+
+    @Override
+    public void onMonthChanged(MaterialCalendarView widget, CalendarDay date) {
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM", Locale.CHINA);
+        mQueryMonth = df.format(date.getCalendar().getTime());
+        Log.e(TAG,"select month:"+mQueryMonth);
     }
 }

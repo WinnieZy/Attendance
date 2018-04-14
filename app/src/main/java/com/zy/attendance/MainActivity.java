@@ -15,9 +15,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.prolificinteractive.materialcalendarview.CalendarDay;
+import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.zy.attendance.controller.MacRequestCtl;
 import com.zy.attendance.storage.dao.UserDao;
 import com.zy.attendance.storage.db.DbOperator;
+import com.zy.attendance.uilib.BaseDialog;
 import com.zy.attendance.uilib.UIConfig;
 import com.zy.attendance.utils.IDataCallback;
 import com.zy.attendance.view.HomeListView;
@@ -34,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager mViewPager;
     private FloatingActionButton fab;
     private BottomNavigationView mBottomNavigationView;
+//    private MaterialCalendarView mMaterialCalendarView;
     final ArrayList<IMainView> viewHandler = new ArrayList<IMainView>();
     private final ArrayList<View> viewContainer = new ArrayList<View>();
     private Context mContext;
@@ -143,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
         mDbOperator = DbOperator.getInstance(mContext);
         UIConfig.initUILib(mContext);
         mViewPager = (ViewPager) findViewById(R.id.viewPager);
+//        mMaterialCalendarView = new MaterialCalendarView(mContext);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -153,6 +158,8 @@ public class MainActivity extends AppCompatActivity {
                 }else if (mViewPager.getCurrentItem() == 1){
                     Snackbar.make(view, "Current position is ListViewPage", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
+                    getDateDialog().show();
+                    mHomeListView.onCallback("clearDialogData",null);
                 }
             }
         });
@@ -198,14 +205,32 @@ public class MainActivity extends AppCompatActivity {
         MacRequestCtl.getInstance().requestMacData(mContext, new IDataCallback() {
             @Override
             public void onCallback(String result, Bundle outBundle) {
-                mHomeListView.getListViewCallback().onCallback(null,null);
+                mHomeListView.onCallback("onCreate",null);
             }
 
             @Override
             public void onHostFail(int errCode, String errMsg, Bundle inBundle) {
-                mHomeListView.getListViewCallback().onCallback(null,null);
+                mHomeListView.onCallback("onCreate",null);
             }
         });
+    }
+
+    private BaseDialog getDateDialog(){
+        final BaseDialog macDialog = new BaseDialog(mContext);
+        final MaterialCalendarView materialCalendarView = new MaterialCalendarView(mContext);
+        materialCalendarView.state().edit().setMaximumDate(CalendarDay.today()).commit();
+        materialCalendarView.setShowOtherDates(MaterialCalendarView.SHOW_ALL);
+        materialCalendarView.setOnDateChangedListener(mHomeListView);
+        materialCalendarView.setOnMonthChangedListener(mHomeListView);
+        macDialog.setContentView(materialCalendarView);
+        macDialog.setNeutralButton(true,"开始查询", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mHomeListView.onCallback("conditionQuery",null);
+                macDialog.dismiss();
+            }
+        });
+        return macDialog;
     }
 
     private void switchTab(int index){

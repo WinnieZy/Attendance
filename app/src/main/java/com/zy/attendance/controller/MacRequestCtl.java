@@ -52,7 +52,7 @@ public class MacRequestCtl {
             //TODO
             date = DateUtil.combineMacDate(macRecord);
             String date10 = date.substring(0,10);
-            if (date10.equals(DateUtil.getFormatDate(false))){
+            if (date10.equals(DateUtil.getFormatDate("day"))){
                 isAdd = false;
                 updateId = macRecord.getId();
             }

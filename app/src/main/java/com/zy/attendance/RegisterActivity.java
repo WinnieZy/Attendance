@@ -117,7 +117,7 @@ public class RegisterActivity extends Activity {
             public void onClick(View view) {
                 Log.e(TAG,"attention click");
                 final BaseDialog macDialog = getMacDialog();
-                macDialog.setNeutralButton("我知道了", new View.OnClickListener() {
+                macDialog.setNeutralButton(false,"我知道了", new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         macDialog.dismiss();

@@ -170,9 +170,13 @@ public class BaseDialog extends Dialog {
      * @param onClickListener
      *            按钮事件
      */
-    public void setNeutralButton(String str,
+    public void setNeutralButton(boolean positive, String str,
                                  View.OnClickListener onClickListener) {
-        setNegativeButton(str, onClickListener);
+        if (positive){
+            setPositiveButton(str,onClickListener);
+        }else {
+            setNegativeButton(str, onClickListener);
+        }
     }
 
     /**

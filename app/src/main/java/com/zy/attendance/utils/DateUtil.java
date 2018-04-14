@@ -12,13 +12,15 @@ import java.util.Locale;
 
 public class DateUtil {
 
-    public static String getFormatDate(boolean second){
+    public static String getFormatDate(String accuracy){
         Date date = new Date();
         SimpleDateFormat formatter;
-        if (second){
+        if ("second".equals(accuracy)){
             formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA);
-        }else {
+        }else if ("day".equals(accuracy)){
             formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
+        }else {
+            formatter = new SimpleDateFormat("yyyy-MM", Locale.CHINA);
         }
         return formatter.format(date);
     }
