@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,7 @@ import android.widget.TextView;
 
 import com.zy.attendance.R;
 import com.zy.attendance.bean.MacRecord;
+import com.zy.attendance.controller.MacRequestCtl;
 import com.zy.attendance.storage.dao.UserDao;
 import com.zy.attendance.storage.db.DbOperator;
 import com.zy.attendance.uilib.QLoadingView;
@@ -34,6 +36,7 @@ public class HomeListView extends LinearLayout implements IMainView,IDataCallbac
     private View mLoadingParent;
     private QLoadingView mLoadingView;
     private TextView mLoadingText;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
     private ListView mListView;
     private HomeListViewAdapter mListViewAdapter;
     private Context mContext;
@@ -79,14 +82,38 @@ public class HomeListView extends LinearLayout implements IMainView,IDataCallbac
 
     private void initUi() throws InterruptedException {
         mContentView = LayoutInflater.from(mContext).inflate(R.layout.layout_home_list_view,null);
+        mSwipeRefreshLayout = mContentView.findViewById(R.id.ll_refresh);
         mTitle_ll = mContentView.findViewById(R.id.ll_title);
         mListView = mContentView.findViewById(R.id.list_view_home);
         mLoadingParent = mContentView.findViewById(R.id.list_is_loading);
         mLoadingView = mContentView.findViewById(R.id.loading_view);
         mLoadingText = mContentView.findViewById(R.id.loading_text);
 
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                //TODO:下拉刷新
+                MacRequestCtl.getInstance().requestMacData(mContext, new IDataCallback() {
+                    @Override
+                    public void onCallback(String result, Bundle outBundle) {
+                        loadingData();
+                    }
+
+                    @Override
+                    public void onHostFail(int errCode, String errMsg, Bundle inBundle) {
+                        loadingData();
+                    }
+                });
+            }
+        });
         mListViewAdapter = new HomeListViewAdapter(mContext);
         mListView.setAdapter(mListViewAdapter);
+        View view = new View(mContext);
+        LayoutParams lp = new LayoutParams(1, 1);
+        view.setLayoutParams(lp);
+        mListView.addHeaderView(view);
+//        mListView.addFooterView(view);
         mLoadingParent.setVisibility(View.VISIBLE);
         mLoadingView.setLoadingViewByType(1);
         mLoadingView.startRotationAnimation();
@@ -129,16 +156,14 @@ public class HomeListView extends LinearLayout implements IMainView,IDataCallbac
                             mLoadingView.stopRotationAnimation();
                             mLoadingParent.setVisibility(View.GONE);
                             mListView.setVisibility(VISIBLE);
-                            View view = new View(mContext);
-                            LayoutParams lp = new LayoutParams(1, 1);
-                            view.setLayoutParams(lp);
-                            mListView.addHeaderView(view);
-//                    mListView.addFooterView(view);
                         }
                         if (mListViewAdapter != null) {
                             mListViewAdapter.notifyDataSetChanged();
                         }
                     }
+                }
+                if (mSwipeRefreshLayout.isRefreshing()){
+                    mSwipeRefreshLayout.setRefreshing(false);
                 }
             }
         });

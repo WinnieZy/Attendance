@@ -68,14 +68,19 @@
 
     </LinearLayout>
 
-    <ListView
-        android:id="@+id/list_view_home"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/ll_refresh"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:dividerHeight="1dp"
-        android:headerDividersEnabled="true"
-        android:footerDividersEnabled="true"
-        android:visibility="gone"></ListView>
+        android:layout_weight="1">
+        <ListView
+            android:id="@+id/list_view_home"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:dividerHeight="1dp"
+            android:headerDividersEnabled="true"
+            android:footerDividersEnabled="true"
+            android:visibility="gone"/>
+    </android.support.v4.widget.SwipeRefreshLayout>
 
 </LinearLayout>
