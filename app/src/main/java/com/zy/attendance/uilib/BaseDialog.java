@@ -61,6 +61,10 @@ public class BaseDialog extends Dialog {
      * 是否显示按钮
      */
     private boolean mIsShowButtons;
+    /**
+     * 是否底部显示
+     */
+    private boolean mIsShowBottom;
 
     public BaseDialog(@NonNull Context context) {
         super(context);
@@ -94,6 +98,27 @@ public class BaseDialog extends Dialog {
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(UIConfig.canvasWidth, LinearLayout.LayoutParams.FILL_PARENT);
         super.setContentView(mDialogLayout, params);
+    }
+
+    /**
+     * 设置按钮绿色
+     */
+    public void setButtonTwoHighlight(Context context) {
+        mButtonTwo.setTextColor(context.getResources().getColor(R.color.colorPrimary));
+    }
+
+    /**
+     * 设置按钮无色
+     */
+    public void setButtonOneDarklight(Context context) {
+        mButtonOne.setTextColor(context.getResources().getColor(R.color.text_black));
+    }
+
+    /**
+     * 设置弹框展示的位置在底部
+     */
+    public void setIsShowBottom(boolean showBottom) {
+        mIsShowBottom = showBottom;
     }
 
     /**
@@ -298,21 +323,27 @@ public class BaseDialog extends Dialog {
             }
         }
 
-        int margin = (int) UIConfig.getUILibResources(mContext)
-                .getDimension(R.dimen.dialog_margin);
-        RelativeLayout.LayoutParams realContentLayoutParams = (android.widget.RelativeLayout.LayoutParams) mRealContentLayout
-                .getLayoutParams();
-        realContentLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 0);
+        if (mIsShowBottom){
+            WindowManager.LayoutParams lp = getWindow().getAttributes();
+            lp.gravity = Gravity.BOTTOM;
+            getWindow().setAttributes(lp);
+        }else {
+            int margin = (int) UIConfig.getUILibResources(mContext)
+                    .getDimension(R.dimen.dialog_margin);
+            RelativeLayout.LayoutParams realContentLayoutParams = (android.widget.RelativeLayout.LayoutParams) mRealContentLayout
+                    .getLayoutParams();
+            realContentLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 0);
 
-        RelativeLayout.LayoutParams contentRootLayoutParams = (RelativeLayout.LayoutParams) mContentRootLayout.getLayoutParams();
-        contentRootLayoutParams.leftMargin = margin;
-        contentRootLayoutParams.rightMargin = margin;
-        contentRootLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 0);
-        contentRootLayoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
+            RelativeLayout.LayoutParams contentRootLayoutParams = (RelativeLayout.LayoutParams) mContentRootLayout.getLayoutParams();
+            contentRootLayoutParams.leftMargin = margin;
+            contentRootLayoutParams.rightMargin = margin;
+            contentRootLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 0);
+            contentRootLayoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
 
-        WindowManager.LayoutParams lp = getWindow().getAttributes();
-        lp.gravity = Gravity.CENTER;
-        getWindow().setAttributes(lp);
+            WindowManager.LayoutParams lp = getWindow().getAttributes();
+            lp.gravity = Gravity.CENTER;
+            getWindow().setAttributes(lp);
+        }
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.zy.attendance.utils;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.zy.attendance.bean.ApplyRecord;
 import com.zy.attendance.bean.MacRecord;
 import com.zy.attendance.bean.Staff;
 
@@ -47,35 +48,46 @@ public class JsonUtil {
         String month = date.substring(5,7);
         String day = date.substring(8,10);
         String weekday = date.substring(11,12);
-//        int weekday = -1;
-//        switch (weekdayStr){
-//            case "一":
-//                weekday = 1;
-//                break;
-//            case "二":
-//                weekday = 2;
-//                break;
-//            case "三":
-//                weekday = 3;
-//                break;
-//            case "四":
-//                weekday = 4;
-//                break;
-//            case "五":
-//                weekday = 5;
-//                break;
-//            case "六":
-//                weekday = 6;
-//                break;
-//            case "日":
-//                weekday = 0;
-//                break;
-//            default:
-//                break;
-//        }
         MacRecord macRecord = new MacRecord(mac,year,month,day,weekday,first_time,last_time);
         Log.e(TAG,macRecord.toString());
         return macRecord;
+    }
+
+    public static ArrayList<ApplyRecord> handleApplyResponse(String response){
+        ArrayList<ApplyRecord> applyList = new ArrayList<ApplyRecord>();
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            JSONArray data = jsonObject.getJSONArray("data");
+            for (int i = 0; i < data.length(); i++) {
+                JSONObject jsonArrayObject = data.getJSONObject(i);
+                int apply_id = jsonArrayObject.getInt("apply_id");
+                int staff_id = jsonArrayObject.getInt("staff_id");
+                String staff_name = jsonArrayObject.getString("staff_name");
+                int leader_id = jsonArrayObject.getInt("leader_id");
+                int type = jsonArrayObject.getInt("type");
+                String apply_time_for = jsonArrayObject.getString("apply_time_for");
+                String apply_time_at = jsonArrayObject.getString("apply_time_at");
+                String reason = jsonArrayObject.getString("reason");
+                int result = jsonArrayObject.getInt("result");
+                Log.e(TAG,"handleApplyResponse,apply_id:"+apply_id+",staff_id:"+staff_id+",staff_name:"+staff_name+",leader_id:"+leader_id+",type:"+type+",apply_time_for:"+apply_time_for+",apply_time_at:"+apply_time_at+",reason:"+reason+",result:"+result);
+                applyList.add(new ApplyRecord(apply_id,staff_id,staff_name,leader_id,type,apply_time_for,apply_time_at,reason,result));
+            }
+            return applyList;
+        } catch (JSONException e) {
+            Log.e(TAG,"handleMacResponse,exception:"+e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String handleApplyAddResponse(String response){
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            return jsonObject.getJSONArray("data").get(0).toString();
+        } catch (JSONException e) {
+            Log.e(TAG,"handleApplyAddResponse,exception:"+e.getMessage());
+        }
+        return null;
     }
 
     public static Staff handleLoginData(String response){
@@ -84,8 +96,10 @@ public class JsonUtil {
             JSONArray data = jsonObject.getJSONArray("data");
             if (data != null){
                 JSONObject jsonArrayObject = data.getJSONObject(0);
-                Gson gson = new Gson();
-                return gson.fromJson(jsonArrayObject.toString(),Staff.class);
+                Staff staff = new Gson().fromJson(jsonArrayObject.toString(),Staff.class);
+                String approval_auth = jsonArrayObject.getString("approval_auth");
+                staff.setApproval_auth("1".equals(approval_auth));
+                return staff;
             }else {
                 return null;
             }

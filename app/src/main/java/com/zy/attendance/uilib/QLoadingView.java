@@ -17,7 +17,7 @@ import static com.zy.attendance.uilib.UIConfig.HOST_ATTRIBUTE_NAME_SPACE;
  * java使用时可以用setType变更
  */
 public class QLoadingView extends BaseAnimView {
-	public static final String TAG = "QLoadingView";
+	private static final String TAG = "QLoadingView";
 	private static final int GREEN_COLOR = 0xFF00D196;
 	private static final int WHITE_COLOR = 0xFFFFFFFF;
 	private static final int NO_COLOR = 0x00FFFFFF;

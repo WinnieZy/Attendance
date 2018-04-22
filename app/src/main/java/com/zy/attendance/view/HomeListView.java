@@ -93,7 +93,7 @@ public class HomeListView extends LinearLayout implements IMainView,IDataCallbac
 
     private void initUi() throws InterruptedException {
         mContentView = LayoutInflater.from(mContext).inflate(R.layout.layout_home_list_view,null);
-        mSwipeRefreshLayout = mContentView.findViewById(R.id.ll_refresh);
+        mSwipeRefreshLayout = mContentView.findViewById(R.id.srl_home);
         mTitle_ll = mContentView.findViewById(R.id.ll_title);
         mListView = mContentView.findViewById(R.id.list_view_home);
         mLoadingParent = mContentView.findViewById(R.id.list_is_loading);
@@ -104,7 +104,6 @@ public class HomeListView extends LinearLayout implements IMainView,IDataCallbac
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                //TODO:下拉刷新
                 MacRequestCtl.getInstance().requestMacData(mContext, new IDataCallback() {
                     @Override
                     public void onCallback(String result, Bundle outBundle) {
@@ -260,7 +259,7 @@ public class HomeListView extends LinearLayout implements IMainView,IDataCallbac
                 if (mQueryDate != null) {
                     Log.e(TAG, "mQueryDate != null");
                     arrayList = mDbOperator.queryMacRecordByDate(mQueryMonday, mQuerySunday);
-                } else if (mQueryMonth != null) {
+                } else {
                     Log.e(TAG, "mQueryMonth != null");
                     arrayList = mDbOperator.queryMacRecordByMonth(mQueryMonth);
                 }

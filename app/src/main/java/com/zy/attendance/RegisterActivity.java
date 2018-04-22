@@ -3,13 +3,13 @@ package com.zy.attendance;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
@@ -30,7 +30,7 @@ import com.zy.attendance.utils.IHttpCallBack;
 import com.zy.attendance.utils.JsonUtil;
 import com.zy.attendance.utils.WiFiUtil;
 
-public class RegisterActivity extends Activity {
+public class RegisterActivity extends AppCompatActivity {
 
     private static final String TAG = "RegisterActivity";
 
@@ -102,16 +102,16 @@ public class RegisterActivity extends Activity {
         mUserDao = new UserDao(mContext);
         mStaffDao = new StaffDao(mContext);
         mProgressView = findViewById(R.id.register_progress);
-        mPasswordEt = findViewById(R.id.et_rPW);
-        mReviewPwEt = findViewById(R.id.et_rSurePW);
+        mPasswordEt = (EditText) findViewById(R.id.et_rPW);
+        mReviewPwEt = (EditText) findViewById(R.id.et_rSurePW);
         if (!mUserDao.getIsMacChecked()){
             findViewById(R.id.mac_ll).setVisibility(View.VISIBLE);
-            mReviewMacEt = findViewById(R.id.et_mac);
+            mReviewMacEt = (EditText) findViewById(R.id.et_mac);
             mReviewMacEt.setText(WiFiUtil.getLocalMacAddress(mContext));
         }
-        mPhoneEt = findViewById(R.id.et_phone);
-        mEmailEt = findViewById(R.id.et_email);
-        Button btn_attention = findViewById(R.id.btn_attention);
+        mPhoneEt = (EditText) findViewById(R.id.et_phone);
+        mEmailEt = (EditText) findViewById(R.id.et_email);
+        Button btn_attention = (Button) findViewById(R.id.btn_attention);
         btn_attention.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -126,7 +126,7 @@ public class RegisterActivity extends Activity {
                 macDialog.show();
             }
         });
-        Button btn_register = findViewById(R.id.btn_register);
+        Button btn_register = (Button) findViewById(R.id.btn_register);
         btn_register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

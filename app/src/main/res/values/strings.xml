@@ -15,6 +15,7 @@
     <string name="tel_num">手机号</string>
     <string name="email">邮箱</string>
     <string name="apply">申请</string>
+    <string name="my_apply">我的申请列表</string>
     <string name="approval">审批</string>
     <string name="title_activity_login">Sign in</string>
 
@@ -60,4 +61,15 @@
     <string name="mac_register_path">校验路径：设置->关于本机->状态消息->WLAN地址</string>
     <string name="mac_review_attention">警告：立即点击校验设备mac</string>
     <string name="mac_modify_attention">说明：修改绑定mac需向直属Leader发出申请，审批通过后修改生效</string>
+
+    <!-- apply and approval -->
+    <string name="apply_item">申请事项</string>
+    <string name="apply_start_time">开始时间</string>
+    <string name="apply_end_time">结束时间</string>
+    <string name="apply_editor">编辑申请</string>
+    <string name="apply_detail">请输入你的申请理由陈述：</string>
+    <string name="apply_leave">请假</string>
+    <string name="apply_overtime">加班</string>
+    <string name="apply_business_trip">出差</string>
+    <string name="apply_others">其它</string>
 </resources>

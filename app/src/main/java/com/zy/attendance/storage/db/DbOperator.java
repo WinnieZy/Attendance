@@ -4,8 +4,11 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
+import com.zy.attendance.bean.ApplyRecord;
 import com.zy.attendance.bean.MacRecord;
+import com.zy.attendance.storage.dao.StaffDao;
 
 import java.util.ArrayList;
 
@@ -15,25 +18,27 @@ import java.util.ArrayList;
 
 public class DbOperator {
 
-    public static final String TAG = "DbOperator";
+    private static final String TAG = "DbOperator";
 
-    public static final String DB_NAME = "AttendanceDB";
-    public static final int VERSION = 1;
-    private static DbOperator dbOperator;
+    private static final String DB_NAME = "AttendanceDB";
+    private static final int VERSION = 1;
+    private static DbOperator mDbOperator;
     private SQLiteDatabase db;
+    private StaffDao mStaffDao;
 
     private DbOperator(Context context) {
         MyDatabaseHelper dbHelper = new MyDatabaseHelper(context,DB_NAME , null, VERSION);
         db = dbHelper.getWritableDatabase();
+        mStaffDao = new StaffDao(context);
     }
     /*
      * 获取实例
      */
     public synchronized static DbOperator getInstance(Context context) {
-        if (dbOperator == null) {
-            dbOperator = new DbOperator(context);
+        if (mDbOperator == null) {
+            mDbOperator = new DbOperator(context);
         }
-        return dbOperator;
+        return mDbOperator;
     }
 
     /*
@@ -102,17 +107,15 @@ public class DbOperator {
     public MacRecord getLatestMacRecord(){
         Cursor cursor = db.rawQuery("select * from mac order by id desc LIMIT 1", null);
         if (cursor.moveToFirst()) {
-            do {
-                int id = cursor.getInt(cursor.getColumnIndex("id"));
-                String mac = cursor.getString(cursor.getColumnIndex("mac"));
-                String year = cursor.getString(cursor.getColumnIndex("year"));
-                String month = cursor.getString(cursor.getColumnIndex("month"));
-                String day = cursor.getString(cursor.getColumnIndex("day"));
-                String weekday = cursor.getString(cursor.getColumnIndex("weekday"));
-                String first_time = cursor.getString(cursor.getColumnIndex("first_time"));
-                String last_time = cursor.getString(cursor.getColumnIndex("last_time"));
-                return new MacRecord(id,mac,year,month,day,weekday,first_time,last_time);
-            } while (cursor.moveToNext());
+            int id = cursor.getInt(cursor.getColumnIndex("id"));
+            String mac = cursor.getString(cursor.getColumnIndex("mac"));
+            String year = cursor.getString(cursor.getColumnIndex("year"));
+            String month = cursor.getString(cursor.getColumnIndex("month"));
+            String day = cursor.getString(cursor.getColumnIndex("day"));
+            String weekday = cursor.getString(cursor.getColumnIndex("weekday"));
+            String first_time = cursor.getString(cursor.getColumnIndex("first_time"));
+            String last_time = cursor.getString(cursor.getColumnIndex("last_time"));
+            return new MacRecord(id,mac,year,month,day,weekday,first_time,last_time);
         }
         cursor.close();
         return null;
@@ -205,30 +208,125 @@ public class DbOperator {
         db.execSQL("drop table if exists mac");
     }
 
+    /*
+	 * 添加一条Apply记录
+	 */
+    public boolean addApplyRecord(ApplyRecord applyRecord) {
+        try {
+            String sql = "insert into apply(apply_id,staff_id,staff_name,leader_id,type,apply_time_for,apply_time_at,reason,result) values(?,?,?,?,?,?,?,?,?)";
+            db.execSQL(sql,new String[]{String.valueOf(applyRecord.getApply_id()),String.valueOf(applyRecord.getStaff_id()),applyRecord.getStaff_name(),
+                    String.valueOf(applyRecord.getLeader_id()),String.valueOf(applyRecord.getType()),applyRecord.getApply_time_for(),
+                    applyRecord.getApply_time_at(),applyRecord.getReason(),String.valueOf(applyRecord.getResult())});
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * 获取Apply表中最新的一条记录的apply_id
+     * @return
+     */
+    public int getLatestApplyRecordApplyId(){
+        Cursor cursor = db.rawQuery("select apply_id from apply order by id desc LIMIT 1", null);
+        if (cursor.moveToFirst()) {
+            int apply_id = cursor.getInt(cursor.getColumnIndex("apply_id"));
+            Log.e("ApplyRequestCtl","apply_id from db:"+apply_id);
+            return apply_id;
+        }
+        cursor.close();
+        return 0;
+    }
+
+    /**
+     * 获取Apply表中最新的一条记录的id
+     * @return
+     */
+    public int getLatestApplyRecordId(){
+        Cursor cursor = db.rawQuery("select id from apply order by id desc LIMIT 1", null);
+        if (cursor.moveToFirst()) {
+            return cursor.getInt(cursor.getColumnIndex("id"));
+        }
+        cursor.close();
+        return 0;
+    }
+
+    /**
+     * 根据一个参数查找apply记录
+     * @param param
+     * @return
+     */
+    public ArrayList<ApplyRecord> queryApplyRecord(String param, String value) {
+        try {
+            ArrayList<ApplyRecord> applyList = new ArrayList<ApplyRecord>();
+            Cursor cursor = db.rawQuery("select * from apply where " +param+ "=?", new String[]{value});
+            if (cursor.moveToFirst()) {
+                do {
+                    int id = cursor.getInt(cursor.getColumnIndex("id"));
+                    int apply_id = cursor.getInt(cursor.getColumnIndex("apply_id"));
+                    int staff_id = cursor.getInt(cursor.getColumnIndex("staff_id"));
+                    String staff_name = cursor.getString(cursor.getColumnIndex("staff_name"));
+                    int leader_id = cursor.getInt(cursor.getColumnIndex("leader_id"));
+                    int type = cursor.getInt(cursor.getColumnIndex("type"));
+                    String apply_time_for = cursor.getString(cursor.getColumnIndex("apply_time_for"));
+                    String apply_time_at = cursor.getString(cursor.getColumnIndex("apply_time_at"));
+                    String reason = cursor.getString(cursor.getColumnIndex("reason"));
+                    int result = cursor.getInt(cursor.getColumnIndex("result"));
+                    applyList.add(new ApplyRecord(id,apply_id,staff_id,staff_name,leader_id,type,apply_time_for,apply_time_at,reason,result));
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
+            return applyList;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * 根据指定id及指定数量查询apply/approval记录
+     * @param queryId
+     * @param countLimit
+     * @return
+     */
+    public ArrayList<ApplyRecord> queryApplyRecordById(int queryId,int countLimit,boolean approval) {
+        try {
+            ArrayList<ApplyRecord> applyList = new ArrayList<ApplyRecord>();
+//            String sql = "select * from apply where apply_id > ?";
+            String sql = "select * from apply where id > ?";
+            String param2 = String.valueOf(mStaffDao.getStaffId());
+            if (approval){
+                sql += " and leader_id = ? and result = 0";
+                param2 = String.valueOf(mStaffDao.getLeaderId());
+            }else {
+                sql += " and staff_id = ?";
+            }
+            if (countLimit > 0) {
+                sql += " Limit "+countLimit;
+            }
+            Cursor cursor = db.rawQuery(sql, new String[]{String.valueOf(queryId),param2});
+            if (cursor.moveToFirst()) {
+                do {
+                    int id = cursor.getInt(cursor.getColumnIndex("id"));
+                    int apply_id = cursor.getInt(cursor.getColumnIndex("apply_id"));
+                    int staff_id = cursor.getInt(cursor.getColumnIndex("staff_id"));
+                    String staff_name = cursor.getString(cursor.getColumnIndex("staff_name"));
+                    int leader_id = cursor.getInt(cursor.getColumnIndex("leader_id"));
+                    int type = cursor.getInt(cursor.getColumnIndex("type"));
+                    String apply_time_for = cursor.getString(cursor.getColumnIndex("apply_time_for"));
+                    String apply_time_at = cursor.getString(cursor.getColumnIndex("apply_time_at"));
+                    String reason = cursor.getString(cursor.getColumnIndex("reason"));
+                    int result = cursor.getInt(cursor.getColumnIndex("result"));
+                    applyList.add(new ApplyRecord(id,apply_id,staff_id,staff_name,leader_id,type,apply_time_for,apply_time_at,reason,result));
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
+            return applyList;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }
-//                String weekdayStr = null;
-//                switch (weekday){
-//                    case 1:
-//                        weekdayStr = "一";
-//                        break;
-//                    case 2:
-//                        weekdayStr = "二";
-//                        break;
-//                    case 3:
-//                        weekdayStr = "三";
-//                        break;
-//                    case 4:
-//                        weekdayStr = "四";
-//                        break;
-//                    case 5:
-//                        weekdayStr = "五";
-//                        break;
-//                    case 6:
-//                        weekdayStr = "六";
-//                        break;
-//                    case 0:
-//                        weekdayStr = "日";
-//                        break;
-//                    default:
-//                        break;
-//                }

@@ -17,14 +17,13 @@ import com.zy.attendance.utils.WiFiUtil;
 import java.util.ArrayList;
 
 /**
+ * 网络请求Mac数据本地更新逻辑
  * Created by lenovo on 2018/4/4.
  */
 
 public class MacRequestCtl {
 
     private static final String TAG = "MacRequestCtl";
-    private String[] modifyKey = {"staff_id","password","mac"};
-    private String[] modifyValue = new String[3];
     private DbOperator mDbOperator;
 
     private MacRequestCtl() {
@@ -101,7 +100,7 @@ public class MacRequestCtl {
                 }
 
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(3000);
                 } catch (InterruptedException e) {
                     Log.e(TAG,"thread sleep catch,message:"+e.getMessage());
                 }

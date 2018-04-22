@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.zy.attendance.R;
+import com.zy.attendance.storage.dao.StaffDao;
+import com.zy.attendance.utils.IDataCallback;
+import com.zy.attendance.utils.IResultCallback;
 import com.zy.attendance.view.Model.MyViewPager;
 
 import java.util.ArrayList;
@@ -20,20 +24,24 @@ import java.util.ArrayList;
  * Created by lenovo on 2018/3/28.
  */
 
-public class ManagementView extends LinearLayout implements IMainView {
+public class ManagementView extends LinearLayout implements IMainView,IResultCallback,IDataCallback {
 
     private static final String TAG = "ManagementView";
     private Context mContext;
     private View mContentView;
+    private LinearLayout mLL_title;
     private TextView mTitle_apply;
     private TextView mTitle_approval;
-    private LinearLayout mLL_title;
-    private MyViewPager mViewPager;
+    private ViewPager mViewPager;
+    private ApplyListView mApplyListView;
+    private ApprovalListView mApprovalListView;
     private final ArrayList<View> viewContainer = new ArrayList<View>();
+    private StaffDao mStaffDao;
 
     public ManagementView(Context context) {
         super(context);
         mContext = context;
+        mStaffDao = new StaffDao(mContext);
         initUi();
     }
 
@@ -43,6 +51,7 @@ public class ManagementView extends LinearLayout implements IMainView {
         mViewPager = mContentView.findViewById(R.id.viewPager_manage);
         mTitle_apply = mLL_title.findViewById(R.id.tv_apply);
         mTitle_approval = mLL_title.findViewById(R.id.tv_approval);
+        View apply_divider = mLL_title.findViewById(R.id.apply_divider);
         mTitle_apply.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -50,21 +59,25 @@ public class ManagementView extends LinearLayout implements IMainView {
                 mViewPager.setCurrentItem(0);
             }
         });
-        mTitle_approval.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.e(TAG,"mTitle_approval onclick");
-                mViewPager.setCurrentItem(1);
-            }
-        });
+        //TODO:加入条件判断当前用户是否有审批权限
+        if (mStaffDao.getApproval_auth()){
+            mTitle_apply.setText(getResources().getString(R.string.apply));
+            mTitle_approval.setVisibility(VISIBLE);
+            apply_divider.setVisibility(VISIBLE);
+            mTitle_approval.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Log.e(TAG,"mTitle_approval onclick");
+                    mViewPager.setCurrentItem(1);
+                }
+            });
+        }
+        mApplyListView = new ApplyListView(mContext);
+        mApprovalListView = new ApprovalListView(mContext);
         synchronized (viewContainer) {
             viewContainer.clear();
-            TextView tv1 = new TextView(mContext);
-            TextView tv2 = new TextView(mContext);
-            tv1.setText("申请");
-            tv2.setText("审批");
-            viewContainer.add(tv1);
-            viewContainer.add(tv2);
+            viewContainer.add(mApplyListView.getContentView());
+            viewContainer.add(mApprovalListView.getContentView());
         }
         mViewPager.setAdapter(mPagerAdapter);
     }
@@ -114,7 +127,12 @@ public class ManagementView extends LinearLayout implements IMainView {
 
     @Override
     public void onDestroy() {
-
+        mApplyListView.onDestroy();
+        mApprovalListView.onDestroy();
+        //遍历并发出
+        synchronized (viewContainer) {
+            viewContainer.clear();
+        }
     }
 
     @Override
@@ -155,5 +173,27 @@ public class ManagementView extends LinearLayout implements IMainView {
     @Override
     public void onSaveInstanceState(Bundle outState) {
 
+    }
+
+    @Override
+    public void onSuccess(String result) {
+        mApplyListView.onSuccess(result);
+        mApprovalListView.onSuccess(result);
+    }
+
+    @Override
+    public void onFail(String failReason) {
+        mApplyListView.onFail(failReason);
+        mApprovalListView.onFail(failReason);
+    }
+
+    @Override
+    public void onCallback(String result, Bundle outBundle) {
+        mApplyListView.onCallback(result,outBundle);
+    }
+
+    @Override
+    public void onHostFail(int errCode, String errMsg, Bundle inBundle) {
+        mApplyListView.onHostFail(errCode,errMsg,null);
     }
 }

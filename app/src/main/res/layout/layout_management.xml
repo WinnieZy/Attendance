@@ -18,13 +18,15 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="@string/apply"
+            android:text="@string/my_apply"
             android:textColor="@color/colorPrimary" />
 
         <View
+            android:id="@+id/apply_divider"
             android:layout_width="1dp"
             android:layout_height="match_parent"
-            android:background="@color/colorPrimary" />
+            android:background="@color/colorPrimary"
+            android:visibility="gone"/>
 
         <TextView
             android:id="@+id/tv_approval"
@@ -33,7 +35,8 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="@string/approval"
-            android:textColor="@color/colorPrimary" />
+            android:textColor="@color/colorPrimary"
+            android:visibility="gone"/>
 
     </LinearLayout>
 

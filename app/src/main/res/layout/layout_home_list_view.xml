@@ -69,7 +69,7 @@
     </LinearLayout>
 
     <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/ll_refresh"
+        android:id="@+id/srl_home"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">

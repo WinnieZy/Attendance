@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -17,12 +16,15 @@ import android.view.ViewGroup;
 
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
+import com.zy.attendance.bean.ApplyRecord;
+import com.zy.attendance.controller.ApplyRequestCtl;
 import com.zy.attendance.controller.MacRequestCtl;
 import com.zy.attendance.storage.dao.UserDao;
 import com.zy.attendance.storage.db.DbOperator;
 import com.zy.attendance.uilib.BaseDialog;
 import com.zy.attendance.uilib.UIConfig;
 import com.zy.attendance.utils.IDataCallback;
+import com.zy.attendance.utils.IResultCallback;
 import com.zy.attendance.view.HomeListView;
 import com.zy.attendance.view.IMainView;
 import com.zy.attendance.view.ManagementView;
@@ -34,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
+    private static final int APPLY_REQUEST = 100;
     private ViewPager mViewPager;
     private FloatingActionButton fab;
     private BottomNavigationView mBottomNavigationView;
@@ -153,11 +156,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (mViewPager.getCurrentItem() == 0){
-                    Snackbar.make(view, "Current position is managementPage", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
+                    Intent intent = new Intent(MainActivity.this,ApplyEditActivity.class);
+                    startActivityForResult(intent,APPLY_REQUEST);
                 }else if (mViewPager.getCurrentItem() == 1){
-                    Snackbar.make(view, "Current position is ListViewPage", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
                     getDateDialog().show();
                     mHomeListView.onCallback("clearDialogData",null);
                 }
@@ -213,12 +214,25 @@ public class MainActivity extends AppCompatActivity {
                 mHomeListView.onCallback("onCreate",null);
             }
         });
+
+        ApplyRequestCtl.getInstance().requestDataByApplyId(mContext, new IResultCallback() {
+            @Override
+            public void onSuccess(String result) {
+                mManagementView.onSuccess("onCreate");
+            }
+
+            @Override
+            public void onFail(String failReason) {
+                mManagementView.onFail("onCreate");
+            }
+        });
     }
 
     private BaseDialog getDateDialog(){
         final BaseDialog macDialog = new BaseDialog(mContext);
         final MaterialCalendarView materialCalendarView = new MaterialCalendarView(mContext);
         materialCalendarView.state().edit().setMaximumDate(CalendarDay.today()).commit();
+        materialCalendarView.setTitleAnimationOrientation(MaterialCalendarView.HORIZONTAL);
         materialCalendarView.setShowOtherDates(MaterialCalendarView.SHOW_ALL);
         materialCalendarView.setOnDateChangedListener(mHomeListView);
         materialCalendarView.setOnMonthChangedListener(mHomeListView);
@@ -263,6 +277,31 @@ public class MainActivity extends AppCompatActivity {
         }
         synchronized (viewContainer) {
             viewContainer.clear();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode){
+            case APPLY_REQUEST:
+                if (resultCode == RESULT_OK){
+                    final Bundle bundle = data.getBundleExtra("bundle");
+                    ApplyRecord applyRecord = bundle.getParcelable("applyRecord");
+                    ApplyRequestCtl.getInstance().sendApplyData(mContext,applyRecord, new IDataCallback() {
+                        @Override
+                        public void onCallback(String result, Bundle outBundle) {
+                            mManagementView.onCallback(result,bundle);
+                        }
+
+                        @Override
+                        public void onHostFail(int errCode, String errMsg, Bundle inBundle) {
+                            mManagementView.onHostFail(errCode,errMsg,null);
+                        }
+                    });
+                }
+                break;
+            default:
+                break;
         }
     }
 }

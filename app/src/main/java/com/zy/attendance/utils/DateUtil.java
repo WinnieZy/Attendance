@@ -1,5 +1,7 @@
 package com.zy.attendance.utils;
 
+import android.text.format.DateFormat;
+
 import com.zy.attendance.bean.MacRecord;
 
 import java.text.SimpleDateFormat;
@@ -29,4 +31,7 @@ public class DateUtil {
         return macRecord.getYear() + "-" + macRecord.getMonth() + "-" + macRecord.getDay() + "(" + macRecord.getWeekday() + ")";
     }
 
+    public static String convertMillsToString(long mills) {
+        return DateFormat.format("yyyy-MM-dd HH:mm:ss", mills).toString();
+    }
 }

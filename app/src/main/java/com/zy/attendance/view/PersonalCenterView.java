@@ -399,6 +399,7 @@ public class PersonalCenterView extends ScrollView implements IMainView{
         storeModelItem(new ItemModel(R.drawable.icon_email,"邮箱"));
         storeModelItem(new ItemModel(R.drawable.icon_no,"工号"));
         storeModelItem(new ItemModel(R.drawable.icon_leader,"直属上级"));
+        storeModelItem(new ItemModel(R.drawable.icon_department,"所属部门"));
         storeModelItem(new ItemModel(R.drawable.icon_calendar,"入职日期"));
         mMacLayout.addView(mItemModelViewList.get(0));
         mPersonLayout.addView(mItemModelViewList.get(1));
@@ -407,6 +408,7 @@ public class PersonalCenterView extends ScrollView implements IMainView{
         mStaffLayout.addView(mItemModelViewList.get(4));
         mStaffLayout.addView(mItemModelViewList.get(5));
         mStaffLayout.addView(mItemModelViewList.get(6));
+        mStaffLayout.addView(mItemModelViewList.get(7));
     }
 
     private void updateItemData(){
@@ -420,12 +422,13 @@ public class PersonalCenterView extends ScrollView implements IMainView{
             }else {
                 mItemModelList.get(0).setContent(getResources().getString(R.string.mac_review_attention));
             }
-            mItemModelList.get(1).setContent(staff.getStaffName());
+            mItemModelList.get(1).setContent(staff.getStaff_name());
             mItemModelList.get(2).setContent(staff.getTel_num());
             mItemModelList.get(3).setContent(staff.getEmail());
             mItemModelList.get(4).setContent(staff.getStaff_id() != 0 ? String.valueOf(staff.getStaff_id()) : "");
             mItemModelList.get(5).setContent(staff.getLeader());
-            mItemModelList.get(6).setContent(staff.getEntry_date());
+            mItemModelList.get(6).setContent(staff.getDepartment());
+            mItemModelList.get(7).setContent(staff.getEntry_date());
         }
         if (mItemModelViewList != null){
             for (int i = 0; i < mItemModelViewList.size(); i++) {
