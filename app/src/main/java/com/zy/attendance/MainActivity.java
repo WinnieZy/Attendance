@@ -141,6 +141,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mContext = this;
+        UIConfig.initUILib(mContext);
         if (!new UserDao(mContext).getIsOnline()){
             Intent intent = new Intent(MainActivity.this,LoginActivity.class);
             startActivity(intent);
@@ -148,7 +149,6 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         mDbOperator = DbOperator.getInstance(mContext);
-        UIConfig.initUILib(mContext);
         mViewPager = (ViewPager) findViewById(R.id.viewPager);
 //        mMaterialCalendarView = new MaterialCalendarView(mContext);
         fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -167,15 +167,13 @@ public class MainActivity extends AppCompatActivity {
         mBottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation);
         mBottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        mManagementView = new ManagementView(mContext);
-
         try {
+            mManagementView = new ManagementView(mContext);
             mHomeListView = new HomeListView(mContext);
+            mPersonalCenterView = new PersonalCenterView(mContext);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-        mPersonalCenterView = new PersonalCenterView(mContext);
 
         synchronized (viewHandler) {
             viewHandler.clear();

@@ -102,8 +102,7 @@ public class ApprovalListView extends FrameLayout implements IMainView,IResultCa
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ApplyRecord applyRecord = mApprovalList.get(mApprovalList.size()-1-position);
-                getApprovalDialog(applyRecord.getReason());
+                getApprovalDialog(mApprovalList.get(mApprovalList.size()-1-position));
             }
         });
         mLoadingParent.setVisibility(View.VISIBLE);
@@ -114,7 +113,8 @@ public class ApprovalListView extends FrameLayout implements IMainView,IResultCa
         mHandler.sendEmptyMessageDelayed(MSG_TIME_OUT,8000);
     }
 
-    private void getApprovalDialog(String reason) {
+    private void getApprovalDialog(final ApplyRecord applyRecord) {
+        String reason = applyRecord.getReason();
         final BaseDialog approvalDialog = new BaseDialog(mContext);
         TextView reasonTv = new TextView(mContext);
         if (reason == null || "".equals(reason)){
@@ -126,6 +126,8 @@ public class ApprovalListView extends FrameLayout implements IMainView,IResultCa
             @Override
             public void onClick(View view) {
                 Log.e(TAG,"leader pass");
+                applyRecord.setResult(1);
+                setApplyResult(applyRecord);
                 approvalDialog.dismiss();
             }
         });
@@ -134,6 +136,8 @@ public class ApprovalListView extends FrameLayout implements IMainView,IResultCa
             @Override
             public void onClick(View view) {
                 Log.e(TAG,"leader reject");
+                applyRecord.setResult(2);
+                setApplyResult(applyRecord);
                 approvalDialog.dismiss();
             }
         });
@@ -159,27 +163,33 @@ public class ApprovalListView extends FrameLayout implements IMainView,IResultCa
                 Log.i(TAG,"updateListView");
                 if (arrayList == null){
                     mLoadingView.stopRotationAnimation();
+                    mLoadingParent.setVisibility(View.VISIBLE);
                     mLoadingText.setText("哎呀，加载失败了，请稍后重试~");
+                    mLoadingText.setVisibility(VISIBLE);
                     mLoadingView.setVisibility(INVISIBLE);
+                    mListView.setVisibility(INVISIBLE);
+                    mSwipeRefreshLayout.setVisibility(VISIBLE);
                 }else {
                     if (arrayList.size()==0){
                         mLoadingView.stopRotationAnimation();
-//                        mLoadingParent.setVisibility(View.GONE);
+                        mLoadingParent.setVisibility(View.VISIBLE);
                         mLoadingText.setText("当前暂无需审批条目");
+                        mLoadingText.setVisibility(VISIBLE);
                         mLoadingView.setVisibility(INVISIBLE);
+                        mListView.setVisibility(INVISIBLE);
+                        mSwipeRefreshLayout.setVisibility(VISIBLE);
                     }else {
                         mListViewAdapter.setListViewData(arrayList);
-                        if (mSwipeRefreshLayout != null) {
-                            mLoadingView.stopRotationAnimation();
-                            mLoadingParent.setVisibility(View.GONE);
-                            mSwipeRefreshLayout.setVisibility(VISIBLE);
-                        }
+                        mLoadingView.stopRotationAnimation();
+                        mLoadingParent.setVisibility(View.GONE);
+                        mSwipeRefreshLayout.setVisibility(VISIBLE);
+                        mListView.setVisibility(VISIBLE);
                         if (mListViewAdapter != null) {
                             mListViewAdapter.notifyDataSetChanged();
                         }
                     }
                 }
-                if (mSwipeRefreshLayout != null && mSwipeRefreshLayout.isRefreshing()){
+                if (mSwipeRefreshLayout.isRefreshing()){
                     mSwipeRefreshLayout.setRefreshing(false);
                 }
             }
@@ -278,5 +288,30 @@ public class ApprovalListView extends FrameLayout implements IMainView,IResultCa
     public void onRefresh() {
         //TODO:申请单信息更新
         ApplyRequestCtl.getInstance().requestDataByApplyId(mContext, this);
+    }
+
+    private void setApplyResult(final ApplyRecord applyRecord){
+        ApplyRequestCtl.getInstance().modifyApply(applyRecord.getApply_id(), applyRecord.getResult(), new IResultCallback() {
+            @Override
+            public void onSuccess(String result) {
+                if (!mDbOperator.updateApplyRecordResult(applyRecord.getApply_id(),applyRecord.getResult())){
+                    Log.e(TAG,"数据库修改失败重试");
+                    mDbOperator.updateApplyRecordResult(applyRecord.getApply_id(),applyRecord.getResult());
+                }
+                if (mApprovalList.contains(applyRecord)) {//防止意外crash
+                    mApprovalList.remove(applyRecord);
+                    Log.e(TAG,"mApprovalList.contains(applyRecord),size:"+mApprovalList.size());
+                }
+                updateListView(mApprovalList);
+            }
+
+            @Override
+            public void onFail(String failReason) {
+                Message message = new Message();
+                message.what = MSG_FAIL_REASON;
+                message.obj = failReason;
+                mHandler.sendMessage(message);
+            }
+        });
     }
 }

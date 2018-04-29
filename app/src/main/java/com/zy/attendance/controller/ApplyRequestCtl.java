@@ -2,6 +2,7 @@ package com.zy.attendance.controller;
 
 import android.content.Context;
 import android.util.Log;
+import android.util.SparseIntArray;
 
 import com.zy.attendance.bean.ApplyRecord;
 import com.zy.attendance.constants.NetAddress;
@@ -98,7 +99,6 @@ public class ApplyRequestCtl {
                 Log.e(TAG,"code:"+code+",message:"+message);
                 if ("200".equals(code)){
                     if ("success".equals(message)){
-                        //TODO:接口接收数据处理逻辑
                         ArrayList<ApplyRecord> applyList= JsonUtil.handleApplyResponse(response);
                         if (applyList != null){
                             for (ApplyRecord applyRecord : applyList) {
@@ -127,5 +127,80 @@ public class ApplyRequestCtl {
                 callback.onFail("on Error Exception");
             }
         });
+    }
+
+    public void modifyApply(int apply_id, int result, final IResultCallback callback) {
+        String[] key = {"apply_id","result"};
+        String[] value = {String.valueOf(apply_id),String.valueOf(result)};
+        String jsonString = JsonUtil.createJSONString(key, value);
+        Log.e(TAG,"modifyApply jsonString:"+jsonString);
+        HttpUtil.sendPostHttpRequest(NetAddress.APPLY_MODIFY, jsonString, new IHttpCallBack() {
+            @Override
+            public void onFinish(String response) {
+                Log.e(TAG,"modifyApply response:"+response);
+                String result = JsonUtil.handleGeneralResponse(response);
+                String code = result.substring(0,3);
+                String message = result.substring(3);
+                Log.e(TAG,"modifyApply code:"+code+",message:"+message);
+                if ("200".equals(code)){
+                    callback.onSuccess(message);
+                }else {
+                    callback.onFail(message);
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+                callback.onFail("提交失败，请稍后重试");
+                Log.e(TAG, "modifyApply onError:"+e.getMessage());
+            }
+        });
+    }
+
+    public boolean updateResult(int staff_id, final IResultCallback callback) {
+        final ArrayList<Integer> apply_id_arr = mDbOperator.queryMyWaitingApply(staff_id);
+        if (apply_id_arr.size() == 0){
+            return false;
+        }
+        String jsonString = JsonUtil.createJSONArray(apply_id_arr);
+        Log.e(TAG,"updateApply jsonString:"+jsonString);
+        HttpUtil.sendPostHttpRequest(NetAddress.APPLY_UPDATE, jsonString, new IHttpCallBack() {
+            @Override
+            public void onFinish(String response) {
+                Log.e(TAG,"updateApply response:"+response);
+                String result = JsonUtil.handleGeneralResponse(response);
+                String code = result.substring(0,3);
+                String message = result.substring(3);
+                Log.e(TAG,"updateApply code:"+code+",message:"+message);
+                if ("200".equals(code)){
+                    SparseIntArray sparseIntArray = JsonUtil.handleApplyUpdateResponse(response);
+                    if (sparseIntArray != null) {
+                        boolean update = false;
+                        for (int i = 0; i < sparseIntArray.size(); i++) {
+                            if (sparseIntArray.get(apply_id_arr.get(i)) != 0) {
+                                mDbOperator.updateApplyRecordResult(apply_id_arr.get(i), sparseIntArray.get(apply_id_arr.get(i)));
+                                update = true;
+                            }
+                        }
+                        if (update){
+                            callback.onSuccess(message);
+                        }else {
+                            callback.onFail("无更新数据");
+                        }
+                    }else {
+                        callback.onFail("无更新数据");
+                    }
+                }else {
+                    callback.onFail(message);
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+                callback.onFail("提交失败，请稍后重试");
+                Log.e(TAG, "modifyApply onError:"+e.getMessage());
+            }
+        });
+        return true;
     }
 }

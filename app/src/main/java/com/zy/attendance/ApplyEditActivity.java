@@ -46,6 +46,7 @@ public class ApplyEditActivity extends AppCompatActivity implements View.OnClick
     private String[] mApplyItems = {"请假","加班","出差","其它"};
     private String mApplyStartTime;
     private String mApplyEndTime;
+    private String mApplyTime;
     private String mApplyDetail;
     private StaffDao mStaffDao;
 
@@ -93,7 +94,17 @@ public class ApplyEditActivity extends AppCompatActivity implements View.OnClick
         switch (v.getId()){
             case R.id.iv_apply_yes:
                 if (isApplyValid()){
-                    ApplyRecord applyRecord = new ApplyRecord(mStaffDao.getStaffId(),mStaffDao.getStaffName(),mStaffDao.getLeaderId(),mApplyItem,mApplyStartTime+"~"+mApplyEndTime, DateUtil.getFormatDate("second"),mApplyDetail,0);
+                    String now_second = DateUtil.getFormatDate("second");
+                    if(mApplyStartTime != null && mApplyEndTime != null) {
+                        if (mApplyStartTime.equals(mApplyEndTime)) {
+                            mApplyTime = mApplyStartTime;
+                        } else {
+                            mApplyTime = mApplyStartTime + "~" + mApplyEndTime;
+                        }
+                    }else {
+                        mApplyTime = now_second;
+                    }
+                    ApplyRecord applyRecord = new ApplyRecord(mStaffDao.getStaffId(),mStaffDao.getStaffName(),mStaffDao.getLeaderId(),mApplyItem,mApplyTime,now_second,mApplyDetail,0);
                     Log.e(TAG,applyRecord.toString());
                     Intent intent = new Intent();
                     Bundle bundle = new Bundle();

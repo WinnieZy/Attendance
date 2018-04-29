@@ -224,6 +224,20 @@ public class DbOperator {
         }
     }
 
+    /*
+	 * 更新一条MAC记录
+	 */
+    public boolean updateApplyRecordResult(int apply_id, int result) {
+        try {
+            String sql = "update apply set result = ? where apply_id = ?";
+            db.execSQL(sql,new String[]{String.valueOf(result),String.valueOf(apply_id)});
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     /**
      * 获取Apply表中最新的一条记录的apply_id
      * @return
@@ -327,6 +341,18 @@ public class DbOperator {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public ArrayList<Integer> queryMyWaitingApply(int staff_id){
+        ArrayList<Integer> apply_id_arr = new ArrayList<>();
+        Cursor cursor = db.rawQuery("select apply_id from apply where staff_id = ? and result = 0", new String[]{String.valueOf(staff_id)});
+        if (cursor.moveToFirst()) {
+            do {
+                apply_id_arr.add(cursor.getInt(cursor.getColumnIndex("apply_id")));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return apply_id_arr;
     }
 
 }

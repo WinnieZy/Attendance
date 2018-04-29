@@ -120,7 +120,7 @@ public class HomeListView extends LinearLayout implements IMainView,IDataCallbac
         mListViewAdapter = new HomeListViewAdapter(mContext);
         mListView.setAdapter(mListViewAdapter);
         View view = new View(mContext);
-        LayoutParams lp = new LayoutParams(1, 1);
+        android.widget.AbsListView.LayoutParams lp = new android.widget.AbsListView.LayoutParams(1, 1);
         view.setLayoutParams(lp);
         mListView.addHeaderView(view);
 //        mListView.addFooterView(view);

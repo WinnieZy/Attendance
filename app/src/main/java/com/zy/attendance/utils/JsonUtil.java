@@ -1,6 +1,7 @@
 package com.zy.attendance.utils;
 
 import android.util.Log;
+import android.util.SparseIntArray;
 
 import com.google.gson.Gson;
 import com.zy.attendance.bean.ApplyRecord;
@@ -90,6 +91,29 @@ public class JsonUtil {
         return null;
     }
 
+    /**
+     * 查询状态为waiting的apply是否有更新
+     * @param response
+     * @return
+     */
+    public static SparseIntArray handleApplyUpdateResponse(String response){
+        try {
+            SparseIntArray sparseIntArray = new SparseIntArray();
+            JSONObject jsonObject = new JSONObject(response);
+            JSONArray data = jsonObject.getJSONArray("data");
+            for (int i = 0; i < data.length(); i++) {
+                JSONObject jsonArrayObject = data.getJSONObject(i);
+                int apply_id = jsonArrayObject.getInt("apply_id");
+                int result = jsonArrayObject.getInt("result");
+                sparseIntArray.put(apply_id, result);
+            }
+            return sparseIntArray;
+        } catch (JSONException e) {
+            Log.e(TAG,"handleApplyAddResponse,exception:"+e.getMessage());
+        }
+        return null;
+    }
+
     public static Staff handleLoginData(String response){
         try {
             JSONObject jsonObject = new JSONObject(response);
@@ -132,6 +156,25 @@ public class JsonUtil {
                 jsonObject.put(key[i],value[i]);
             }
             return String.valueOf(jsonObject);
+        } catch (Exception e) {
+            Log.e(TAG,"createJSON,exception:"+e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static String createJSONArray(ArrayList<Integer> value){
+        try {
+            JSONObject jsonObject = new JSONObject();
+            if (value.size() > 0) {
+                String str = value.get(0).toString();
+                for (int i = 1; i < value.size(); i++) {
+                    str = str + "," + value.get(i).toString();
+                }
+                jsonObject.put("apply_id", str);
+                return String.valueOf(jsonObject);
+            }
+            return null;
         } catch (Exception e) {
             Log.e(TAG,"createJSON,exception:"+e.getMessage());
             e.printStackTrace();

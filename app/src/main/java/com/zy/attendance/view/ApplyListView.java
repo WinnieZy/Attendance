@@ -70,6 +70,9 @@ public class ApplyListView extends FrameLayout implements IMainView,IResultCallb
                     break;
                 case MSG_FAIL_REASON:
                     Toast.makeText(mContext,msg.obj.toString(),Toast.LENGTH_LONG).show();
+                    if (mSwipeRefreshLayout.isRefreshing()){
+                        mSwipeRefreshLayout.setRefreshing(false);
+                    }
                     break;
                 default:
                     break;
@@ -113,6 +116,7 @@ public class ApplyListView extends FrameLayout implements IMainView,IResultCallb
 //        }
         //由于后期申请记录越来越多，每次查询的条数需要由第二个参数LimitCount控制
         //此处传值0表示暂时不控制条数，初期处理方式：refresh与初始化均将整个列表进行更新
+        //TODO:整体更新需要优化
         mApplyRecordList = mDbOperator.queryApplyRecordById(0,0,false);
         updateListView(mApplyRecordList);
 //        mApplyRecordList = mDbOperator.queryApplyRecord("staff_id",String.valueOf(mStaffDao.getStaffId()));
@@ -243,7 +247,14 @@ public class ApplyListView extends FrameLayout implements IMainView,IResultCallb
     @Override
     public void onRefresh() {
         //TODO:申请单信息更新
-        ApplyRequestCtl.getInstance().requestDataByApplyId(mContext, this);
+//        ApplyRequestCtl.getInstance().requestDataByApplyId(mContext, this);
+        if (!ApplyRequestCtl.getInstance().updateResult(mStaffDao.getStaffId(), this)) {
+            if (mSwipeRefreshLayout.isRefreshing()) {
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+        } else{
+            mHandler.sendEmptyMessageDelayed(MSG_TIME_OUT, 8000);
+        }
     }
 
     //IDataCallback用在添加一条新的申请的情况

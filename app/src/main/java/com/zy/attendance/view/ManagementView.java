@@ -57,6 +57,8 @@ public class ManagementView extends LinearLayout implements IMainView,IResultCal
             public void onClick(View view) {
                 Log.e(TAG,"mTitle_apply onclick");
                 mViewPager.setCurrentItem(0);
+                mTitle_apply.setTextColor(getResources().getColor(R.color.colorPrimary));
+                mTitle_approval.setTextColor(getResources().getColor(R.color.text_gray));
             }
         });
         //TODO:加入条件判断当前用户是否有审批权限
@@ -69,6 +71,8 @@ public class ManagementView extends LinearLayout implements IMainView,IResultCal
                 public void onClick(View view) {
                     Log.e(TAG,"mTitle_approval onclick");
                     mViewPager.setCurrentItem(1);
+                    mTitle_apply.setTextColor(getResources().getColor(R.color.text_gray));
+                    mTitle_approval.setTextColor(getResources().getColor(R.color.colorPrimary));
                 }
             });
         }

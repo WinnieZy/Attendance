@@ -14,4 +14,6 @@ public class NetAddress {
     public static final String STAFF_MODIFY = ip_address + "/AttendanceServer/IStaffModify.php";
     public static final String APPLY_ADD = ip_address + "/AttendanceServer/IApplyAdd.php";
     public static final String APPLY_REQUEST = ip_address + "/AttendanceServer/IApply.php";
+    public static final String APPLY_MODIFY = ip_address + "/AttendanceServer/IApplyModify.php";
+    public static final String APPLY_UPDATE = ip_address + "/AttendanceServer/IApplyUpdate.php";
 }

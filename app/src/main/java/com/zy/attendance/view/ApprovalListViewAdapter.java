@@ -13,7 +13,6 @@ import com.zy.attendance.R;
 import com.zy.attendance.bean.ApplyRecord;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by lenovo on 2018/3/26.
@@ -23,17 +22,19 @@ public class ApprovalListViewAdapter extends BaseAdapter {
 
     private static final String TAG = "ApprovalListViewAdapter";
 
-    protected List<ApplyRecord> approvalList = new ArrayList<>();
+    protected ArrayList<ApplyRecord> approvalList = new ArrayList<>();
     private Context mContext;
 
     public ApprovalListViewAdapter(Context context) {
         this.mContext = context;
     }
 
-    public void setListViewData(ArrayList data){
+    public void setListViewData(ArrayList<ApplyRecord> data){
         approvalList = data;
-        for (int i = approvalList.size() - 1; i >= 0; i--) {
-            Log.i(TAG,"approvalList:"+ approvalList.get(i).toString());
+        if (approvalList != null && approvalList.size() > 0) {
+            for (int i = approvalList.size() - 1; i >= 0; i--) {
+                Log.i(TAG, "approvalList:" + approvalList.get(i).toString());
+            }
         }
     }
 
@@ -74,11 +75,7 @@ public class ApprovalListViewAdapter extends BaseAdapter {
                 viewHolder.iv_type.setImageResource(R.drawable.apply_other);
             }
             viewHolder.tv_staff_name.setText(data.getStaff_name());
-            if ("null~null".equals(data.getApply_time_for())){
-                viewHolder.tv_apply_time.setText(data.getApply_time_at());
-            }else {
-                viewHolder.tv_apply_time.setText(data.getApply_time_for());
-            }
+            viewHolder.tv_apply_time.setText(data.getApply_time_for());
             viewHolder.iv_result.setVisibility(View.GONE);
             convertView.setTag(viewHolder);
         } else {
@@ -93,11 +90,7 @@ public class ApprovalListViewAdapter extends BaseAdapter {
                 viewHolder.iv_type.setImageResource(R.drawable.apply_other);
             }
             viewHolder.tv_staff_name.setText(data.getStaff_name());
-            if ("null~null".equals(data.getApply_time_for())){
-                viewHolder.tv_apply_time.setText(data.getApply_time_at());
-            }else {
-                viewHolder.tv_apply_time.setText(data.getApply_time_for());
-            }
+            viewHolder.tv_apply_time.setText(data.getApply_time_for());
             viewHolder.iv_result.setVisibility(View.GONE);
         }
         return convertView;

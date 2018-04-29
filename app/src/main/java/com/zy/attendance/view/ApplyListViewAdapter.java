@@ -73,11 +73,7 @@ public class ApplyListViewAdapter extends BaseAdapter {
             }else {
                 viewHolder.iv_type.setImageResource(R.drawable.apply_other);
             }
-            if ("null~null".equals(data.getApply_time_for())){
-                viewHolder.tv_apply_time.setText(data.getApply_time_at());
-            }else {
-                viewHolder.tv_apply_time.setText(data.getApply_time_for());
-            }
+            viewHolder.tv_apply_time.setText(data.getApply_time_for());
             if (data.getReason() == null || "".equals(data.getReason())){
                 viewHolder.tv_reason.setText("无");
             }else {
@@ -102,11 +98,7 @@ public class ApplyListViewAdapter extends BaseAdapter {
             }else {
                 viewHolder.iv_type.setImageResource(R.drawable.apply_other);
             }
-            if ("null~null".equals(data.getApply_time_for())){
-                viewHolder.tv_apply_time.setText(data.getApply_time_at());
-            }else {
-                viewHolder.tv_apply_time.setText(data.getApply_time_for());
-            }
+            viewHolder.tv_apply_time.setText(data.getApply_time_for());
             if (data.getReason() == null || "".equals(data.getReason())){
                 viewHolder.tv_reason.setText("无");
             }else {

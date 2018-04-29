@@ -27,7 +27,7 @@ public class WiFiUtil {
 
     public static final String TAG = "WiFiUtil";
 
-    public static String getLocalMacAddress(Context context) {
+    public static String getMac(Context context) {
         try {
             WifiManager mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
             WifiInfo info = mWifiManager.getConnectionInfo();
@@ -38,7 +38,7 @@ public class WiFiUtil {
         return "";
     }
 
-    public static String getMac(Context context) {
+    public static String getLocalMacAddress(Context context) {
 
         String strMac = null;
 
